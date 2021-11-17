@@ -25,14 +25,58 @@ import model
 import csv
 
 
-"""
-El controlador se encarga de mediar entre la vista y el modelo.
-"""
+# Start Analizer.
 
-# Inicialización del Catálogo de libros
+def init():
+    """ Recupera el Analizador del modelo y lo retorna."""
+    analyzer = model.new_analyzer()
+    return analyzer
 
-# Funciones para la carga de datos
 
-# Funciones de ordenamiento
+# Load data from CSV files to Analizer.
 
-# Funciones de consulta sobre el catálogo
+def load_data(analyzer):
+    """
+    Carga los datos de los archivos CSV al analizador en el modelo.
+    """
+    data = cf.data_dir + 'Skylines/'
+    airports_file = csv.DictReader(open(data + 'airports_full.csv', 
+                                        encoding="utf-8"), delimiter=",")
+    routes_file = csv.DictReader(open(data + 'routes_full.csv', 
+                                      encoding="utf-8"), delimiter=",")
+    worldcities_file = csv.DictReader(open(data + 'worldcities.csv', 
+                                           encoding="utf-8"), delimiter=",")
+    for airport in airports_file:
+        model.add_airport(analyzer, airport)
+    for route in routes_file:
+        model.add_route_digraph(analyzer, route)
+        model.add_route_graph(analyzer, route)
+    for city in worldcities_file:
+        model.add_city(analyzer, city)
+    return analyzer  
+
+
+# Requirements
+
+def requirement1():
+    return model.requirement1()
+
+
+def requirement2():
+    return model.requirement2()
+
+
+def requirement3():
+    return model.requirement3()
+
+
+def requirement4():
+    return model.requirement4()
+
+
+def requirement5():
+    return model.requirement5()
+
+
+def requirement6():
+    return model.requirement6()
