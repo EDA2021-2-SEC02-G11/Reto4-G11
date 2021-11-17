@@ -24,6 +24,7 @@ import threading
 import config as cf
 import sys
 import controller
+from prettytable import PrettyTable
 from DISClib.ADT import list as lt
 assert cf
 
@@ -58,20 +59,47 @@ def print_load_data():
     print('Cargando información de los archivos...\n')
     analyzer = controller.init()
     controller.load_data(analyzer)
-    # print('Se cargaron '+str(lt.size(catalog['sightings']))+' avistamientos ' +
-    #       'de OVNIS.\n')
-    # print('Primeros cinco y últimos cinco avistamientos cargados: ')
-    # table = PrettyTable(['Fecha y hora', 'Ciudad', 'País', 'Duración (s)',
-    #                     'Forma'])
-    # ll = catalog['sightings']
-    # for i in 1, 2, 3, 4, 5, -4, -3, -2, -1, 0:
-    #     table.add_row([lt.getElement(ll, i)['datetime'],
-    #                    lt.getElement(ll, i)['city'],
-    #                    lt.getElement(ll, i)['country'],
-    #                    lt.getElement(ll, i)['duration (seconds)'],
-    #                    lt.getElement(ll, i)['shape']])
-    # print(table)
-    # return catalog
+    r = controller.info_graphs(analyzer)
+    ne_digraph, nv_digraph, ne_graph, nv_graph, ncities, a_dg, a_g, city = r
+    # Digraph
+    print('\nEn el dígrafo hay un total de '+str(nv_digraph) +
+          ' aeropuertos.')
+    print('En el dígrafo hay un total de '+str(ne_digraph) +
+          ' rutas aéreas con dirección.\n')
+    print('Información del primer aeropuerto cargado en el dígrafo:')
+    table1 = PrettyTable(['Nombre', 'Ciudad', 'País', 'Latitud',
+                         'Longitud'])
+    table1.add_row([a_dg['Name'],
+                    a_dg['City'],
+                    a_dg['Country'],
+                    a_dg['Latitude'],
+                    a_dg['Longitude']])
+    print(table1)
+    # Graph
+    print('\nEn el grafo hay un total de '+str(nv_graph) +
+          ' aeropuertos.')
+    print('En el grafo hay un total de '+str(ne_graph) +
+          ' rutas aéreas bidireccionales.\n')
+    print('Información del primer aeropuerto cargado en el grafo:')
+    table2 = PrettyTable(['Nombre', 'Ciudad', 'País', 'Latitud',
+                         'Longitud'])
+    table2.add_row([a_g['Name'],
+                    a_g['City'],
+                    a_g['Country'],
+                    a_g['Latitude'],
+                    a_g['Longitude']])
+    print(table2)
+    # Cities
+    print('Hay un total de '+str(ncities) + 'ciudades.\n')
+    print('Información de la última ciudad cargada:')
+    table3 = PrettyTable(['Ciudad', 'Población', 'Latitud',
+                         'Longitud'])
+    table3.add_row([city['city'],
+                    city['population'],
+                    city['lat'],
+                    city['lng']])
+    print(table3)
+    return analyzer
 
 
 catalog = None
@@ -92,26 +120,26 @@ def thread_cycle():
             print(error)
             continue
         if inputs == 0:
-            cont = controller.init()
+            analyzer = print_load_data()
         elif inputs > 0 and inputs < 7:
             try:
-                cont
+                analyzer
             except NameError:
                 print(error_cargar)
                 continue
             print('Los requerimientos aún no se han implementado.')
             # if inputs == 1:
-            #     print_req1(cont)
+            #     print_req1(analyzer)
             # elif inputs == 2:
-            #     print_req2(cont)
+            #     print_req2(analyzer)
             # elif inputs == 3:
-            #     print_req3(cont)
+            #     print_req3(analyzer)
             # elif inputs == 4:
-            #     print_req4(cont)
+            #     print_req4(analyzer)
             # elif inputs == 5:
-            #     print_req5(cont)
+            #     print_req5(analyzer)
             # elif inputs == 6:
-            #     print_req6(cont)
+            #     print_req6(analyzer)
         elif inputs > 7:
             print(error)
         else:

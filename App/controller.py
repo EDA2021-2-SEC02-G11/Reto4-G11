@@ -56,7 +56,12 @@ def load_data(analyzer):
     return analyzer  
 
 
-# Requirements
+# Functions that connect view to model
+
+
+def info_graphs(analyzer):
+    return model.info_graphs(analyzer)
+
 
 def requirement1():
     return model.requirement1()
