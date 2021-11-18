@@ -66,15 +66,6 @@ def print_load_data():
           ' aeropuertos con abreviación IATA única.')
     print('En el dígrafo hay un total de '+str(ne_digraph) +
           ' rutas aéreas dirigidas únicas.\n')
-    # ------------------- vv Nota para el monitor vv ---------------------
-    print('NOTA: En el archivo de rutas no todas las rutas son únicas porque' +
-          ' distintas aerolíneas hacen la misma ruta. Si en el dígrafo ' +
-          'distinguiéramos las rutas por aerolínea, serían 92605. Al ' +
-          'monitor que califique, por favor escribe en los comentarios si ' +
-          'tomamos solo rutas únicas y sí debe dar 50231 o si '
-          'distinguimos por aerolínea y da 92605, para saber si dejamos la ' +
-          'implementación que tenemos o la cambiamos.\n')
-    # ------------------- ^^ Nota para el monitor ^^ ---------------------
     print('Información del primer aeropuerto cargado en el dígrafo:')
     table1 = PrettyTable(['Nombre', 'Ciudad', 'País', 'Latitud',
                          'Longitud'])

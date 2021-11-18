@@ -70,8 +70,8 @@ def new_analyzer():
                     'airports': None,
                     'cities': None,
                     'loaded': {},
-                    'components': None,  # TODO: Mirar si lo necesitaremos
-                    'paths': None  # TODO: Mirar si lo necesitaremos
+                    'components': None,
+                    'paths': None
                     }
 
         analyzer['digraph'] = gr.newGraph(datastructure='ADJ_LIST',
@@ -80,15 +80,15 @@ def new_analyzer():
                                           comparefunction=comparek)
         analyzer['graph'] = gr.newGraph(datastructure='ADJ_LIST',
                                         directed=False,
-                                        size=10700,  # TODO: mirar el tamaño
+                                        size=4000,
                                         comparefunction=comparek)
-        analyzer['routes'] = mp.newMap(numelements=10700,  # TODO: mirar tamaño
+        analyzer['routes'] = mp.newMap(numelements=10700,
                                        maptype='PROBING',
                                        comparefunction=comparek)
-        analyzer['airports'] = mp.newMap(numelements=10700,  # TODO: mirar tmño
+        analyzer['airports'] = mp.newMap(numelements=10700,
                                          maptype='PROBING',
                                          comparefunction=comparek)
-        analyzer['cities'] = mp.newMap(numelements=10700,  # TODO: mirar tamaño
+        analyzer['cities'] = mp.newMap(numelements=37500,
                                        maptype='PROBING',
                                        comparefunction=comparek)
         return analyzer
@@ -146,7 +146,7 @@ def add_route_digraph(analyzer, route):
             array = me.getValue(route_entry)
             lt.addLast(array, destination)
         else:
-            array = lt.newList(datastructure='ARRAY_LIST')
+            array = lt.newList(datastructure='ARRAY_LIST', cmpfunction=compare)
             lt.addLast(array, destination)
             mp.put(analyzer['routes'], origin, array)
     except Exception as exp:
