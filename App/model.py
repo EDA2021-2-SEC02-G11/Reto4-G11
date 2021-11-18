@@ -30,9 +30,9 @@ from DISClib.ADT.graph import gr
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
-from DISClib.Algorithms.Sorting import shellsort as sa
-from DISClib.Algorithms.Graphs import scc
-from DISClib.Algorithms.Graphs import dijsktra as djk
+# from DISClib.Algorithms.Sorting import shellsort as sa
+# from DISClib.Algorithms.Graphs import scc
+# from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
 assert cf
 
@@ -47,14 +47,17 @@ def new_analyzer():
            aeropuertos y las rutas que tengan tanto una ruta de ida
            entre los dos aeropuertos como una de vuelta.
     routes: Tabla de hash que tiene como llaves las abreviaturas AITA
-            de cada aeropuerto y como valores arreglos con todos los 
+            de cada aeropuerto y como valores arreglos con todos los
             otros aeropuertos que son posibles destinos de ese.
     airports: Tabla de hash que tiene como llaves las abreviaturas AITA
-              de cada aeropuerto y como valores el diccionario con la 
+              de cada aeropuerto y como valores el diccionario con la
               información del aeropuerto.
     cities: Tabla de hash que tiene como llaves los nombres de las
             ciudades y como valores el diccionario con la información de
             la ciudad.
+    loaded: Estructura que almacena qué aeropuerto se cargó
+            primero a cada grafo y qué ciudad se cargó última.
+
     components: Almacena la información de los componentes conectados.
     paths: Estructura que almancena los caminos de costo mínimo desde un
            vértice determinado a todos los otros vértices del grafo
@@ -66,28 +69,28 @@ def new_analyzer():
                     'routes': None,
                     'airports': None,
                     'cities': None,
+                    'loaded': {},
                     'components': None,  # TODO: Mirar si lo necesitaremos
                     'paths': None  # TODO: Mirar si lo necesitaremos
                     }
 
-
         analyzer['digraph'] = gr.newGraph(datastructure='ADJ_LIST',
                                           directed=True,
                                           size=10700,
-                                          comparefunction=compare)
+                                          comparefunction=comparek)
         analyzer['graph'] = gr.newGraph(datastructure='ADJ_LIST',
                                         directed=False,
                                         size=10700,  # TODO: mirar el tamaño
-                                        comparefunction=compare)
+                                        comparefunction=comparek)
         analyzer['routes'] = mp.newMap(numelements=10700,  # TODO: mirar tamaño
                                        maptype='PROBING',
-                                       comparefunction=compare)
-        analyzer['airports'] = mp.newMap(numelements=10700,  # TODO: mirar tamaño
+                                       comparefunction=comparek)
+        analyzer['airports'] = mp.newMap(numelements=10700,  # TODO: mirar tmño
                                          maptype='PROBING',
-                                         comparefunction=compare)
+                                         comparefunction=comparek)
         analyzer['cities'] = mp.newMap(numelements=10700,  # TODO: mirar tamaño
                                        maptype='PROBING',
-                                       comparefunction=compare)
+                                       comparefunction=comparek)
         return analyzer
     except Exception as exp:
         error.reraise(exp, 'model: new_analyzer')
@@ -98,19 +101,24 @@ def new_analyzer():
 
 def add_airport(analyzer, airport):
     """
-    Añade la abreviación AITA de cada aeropuerto en el archivo 
+    Añade la abreviación AITA de cada aeropuerto en el archivo
     airports_full.csv como un vértice del dígrafo 'digraph' del
     Analizador.
     """
     try:
+        # Add vertex to digraph
         if not gr.containsVertex(analyzer['digraph'], airport['IATA']):
             gr.insertVertex(analyzer['digraph'], airport['IATA'])
 
+        # Add airport to hash table
         airport_exists = mp.contains(analyzer['airports'], airport['IATA'])
         if not airport_exists:
             mp.put(analyzer['airports'], airport['IATA'], airport)
 
-        return analyzer
+        # First airport loaded to digraph
+        if 'first_digraph' not in analyzer['loaded']:
+            analyzer['loaded']['first_digraph'] = airport
+
     except Exception as exp:
         error.reraise(exp, 'model: add_airport')
 
@@ -119,6 +127,7 @@ def add_route_digraph(analyzer, route):
     """
     Añade un arco dirigido al dígrafo 'digraph' del Analizador.
     """
+    # Add edge to digraph
     try:
         origin = route['Departure']
         destination = route['Destination']
@@ -129,6 +138,7 @@ def add_route_digraph(analyzer, route):
     except Exception as exp:
         error.reraise(exp, 'model: add_route_digraph: add_edge')
 
+    # Add destination from route to destination list in hash table
     try:
         route_exists = mp.contains(analyzer['routes'], origin)
         if route_exists:
@@ -141,7 +151,7 @@ def add_route_digraph(analyzer, route):
             mp.put(analyzer['routes'], origin, array)
     except Exception as exp:
         error.reraise(exp, 'model: add_route_digraph: put_hashtable')
-    
+
 
 def add_route_graph(analyzer, route):
     """
@@ -153,13 +163,13 @@ def add_route_graph(analyzer, route):
         origin = route['Departure']
         destination = route['Destination']
         dist = float(route['distance_km'])
-        
+
         destination_exists = mp.contains(analyzer['routes'], destination)
         if destination_exists:
             destination_entry = mp.get(analyzer['routes'], destination)
             array = me.getValue(destination_entry)
-            if lt.isPresent(array, origin) != 0:  
-                # 'origin' is in the array that is value of the key 
+            if lt.isPresent(array, origin) != 0:
+                # 'origin' is in the array that is value of the key
                 # 'destination' in the hash table. Thus, there exists an
                 # edge destination -> origin.
                 if not gr.containsVertex(analyzer['graph'], origin):
@@ -169,19 +179,20 @@ def add_route_graph(analyzer, route):
                 edge = gr.getEdge(analyzer['graph'], origin, destination)
                 if edge is None:
                     gr.addEdge(analyzer['graph'], origin, destination, dist)
-                # Given that the graph is not directed, when invoking 
+                # Given that the graph is not directed, when invoking
                 # gr.addEdge(graph, origin, destination) not only an
                 # edge origin -> destination is added but also an edge
                 # destination -> origin. Due to that, when using
-                # 'origin' and 'destination' as parameters of 
-                # gr.getEdge() or gr.addEdge() their positions are 
+                # 'origin' and 'destination' as parameters of
+                # gr.getEdge() or gr.addEdge() their positions are
                 # interchangeable.
-                return analyzer
-        else:
-            # If the destination doesn't exist in the hash table, there
-            # is no edge destination -> origin. The execution of the
-            # function ends. 
-            return analyzer
+
+                # First airport loaded to graph
+                if 'first_graph' not in analyzer['loaded']:
+                    entry = mp.get(analyzer['airports'], origin)
+                    airport = me.getValue(entry)
+                    analyzer['loaded']['first_graph'] = airport
+
     except Exception as exp:
         error.reraise(exp, 'model: add_route_graph')
 
@@ -193,9 +204,14 @@ def add_city(analyzer, city):
     ciudad.
     """
     try:
+        # Add city to hash table
         city_exists = mp.contains(analyzer['cities'], city['city'])
         if not city_exists:
             mp.put(analyzer['cities'], city['city'], city)
+
+        # Last city loaded
+        analyzer['loaded']['last_city'] = city
+
     except Exception as exp:
         error.reraise(exp, 'model: add_city')
 
@@ -209,9 +225,9 @@ def info_graphs(analyzer):
     ne_graph = gr.numEdges(analyzer['graph'])
     nv_graph = gr.numVertices(analyzer['graph'])
     ncities = mp.size(analyzer['cities'])
-    a_dg = 'FALTA'
-    a_g = 'FALTA'
-    city = 'FALTA'
+    a_dg = analyzer['loaded']['first_digraph']
+    a_g = analyzer['loaded']['first_graph']
+    city = analyzer['loaded']['last_city']
     return ne_digraph, nv_digraph, ne_graph, nv_graph, ncities, a_dg, a_g, city
 
 
@@ -257,9 +273,9 @@ def compare(thing1, thing2):
         return -1
 
 
-def compareStopIds(stop, keyvaluestop):
+def comparek(thing1, key1):
     """
     Compara dos estaciones
     """
-    stopcode = keyvaluestop['key']
-    return compare(stop, stopcode)
+    thing2 = key1['key']
+    return compare(thing1, thing2)

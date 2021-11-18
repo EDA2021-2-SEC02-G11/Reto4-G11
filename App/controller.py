@@ -40,11 +40,11 @@ def load_data(analyzer):
     Carga los datos de los archivos CSV al analizador en el modelo.
     """
     data = cf.data_dir + 'Skylines/'
-    airports_file = csv.DictReader(open(data + 'airports_full.csv', 
+    airports_file = csv.DictReader(open(data + 'airports_full.csv',
                                         encoding="utf-8"), delimiter=",")
-    routes_file = csv.DictReader(open(data + 'routes_full.csv', 
+    routes_file = csv.DictReader(open(data + 'routes_full.csv',
                                       encoding="utf-8"), delimiter=",")
-    worldcities_file = csv.DictReader(open(data + 'worldcities.csv', 
+    worldcities_file = csv.DictReader(open(data + 'worldcities.csv',
                                            encoding="utf-8"), delimiter=",")
     for airport in airports_file:
         model.add_airport(analyzer, airport)
@@ -53,7 +53,7 @@ def load_data(analyzer):
         model.add_route_graph(analyzer, route)
     for city in worldcities_file:
         model.add_city(analyzer, city)
-    return analyzer  
+    return analyzer
 
 
 # Functions that connect view to model

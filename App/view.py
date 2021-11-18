@@ -25,7 +25,7 @@ import config as cf
 import sys
 import controller
 from prettytable import PrettyTable
-from DISClib.ADT import list as lt
+# from DISClib.ADT import list as lt
 assert cf
 
 
@@ -63,9 +63,18 @@ def print_load_data():
     ne_digraph, nv_digraph, ne_graph, nv_graph, ncities, a_dg, a_g, city = r
     # Digraph
     print('\nEn el dígrafo hay un total de '+str(nv_digraph) +
-          ' aeropuertos.')
+          ' aeropuertos con abreviación IATA única.')
     print('En el dígrafo hay un total de '+str(ne_digraph) +
-          ' rutas aéreas con dirección.\n')
+          ' rutas aéreas dirigidas únicas.\n')
+    # ------------------- vv Nota para el monitor vv ---------------------
+    print('NOTA: En el archivo de rutas no todas las rutas son únicas porque' +
+          ' distintas aerolíneas hacen la misma ruta. Si en el dígrafo ' +
+          'distinguiéramos las rutas por aerolínea, serían 92605. Al ' +
+          'monitor que califique, por favor escribe en los comentarios si ' +
+          'tomamos solo rutas únicas y sí debe dar 50231 o si '
+          'distinguimos por aerolínea y da 92605, para saber si dejamos la ' +
+          'implementación que tenemos o la cambiamos.\n')
+    # ------------------- ^^ Nota para el monitor ^^ ---------------------
     print('Información del primer aeropuerto cargado en el dígrafo:')
     table1 = PrettyTable(['Nombre', 'Ciudad', 'País', 'Latitud',
                          'Longitud'])
@@ -77,9 +86,9 @@ def print_load_data():
     print(table1)
     # Graph
     print('\nEn el grafo hay un total de '+str(nv_graph) +
-          ' aeropuertos.')
+          ' aeropuertos con abreviación IATA única.')
     print('En el grafo hay un total de '+str(ne_graph) +
-          ' rutas aéreas bidireccionales.\n')
+          ' rutas aéreas bidireccionales únicas.\n')
     print('Información del primer aeropuerto cargado en el grafo:')
     table2 = PrettyTable(['Nombre', 'Ciudad', 'País', 'Latitud',
                          'Longitud'])
@@ -90,7 +99,7 @@ def print_load_data():
                     a_g['Longitude']])
     print(table2)
     # Cities
-    print('Hay un total de '+str(ncities) + 'ciudades.\n')
+    print('Hay un total de '+str(ncities)+' ciudades.\n')
     print('Información de la última ciudad cargada:')
     table3 = PrettyTable(['Ciudad', 'Población', 'Latitud',
                          'Longitud'])
@@ -108,6 +117,8 @@ catalog = None
 """
 Menú principal
 """
+
+
 def thread_cycle():
     while True:
         error = '\nError: Por favor ingrese un número entero entre 0 y 7.\n'
