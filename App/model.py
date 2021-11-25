@@ -144,7 +144,8 @@ def add_route_digraph(analyzer, route):
         if route_exists:
             route_entry = mp.get(analyzer['routes'], origin)
             array = me.getValue(route_entry)
-            lt.addLast(array, destination)
+            if lt.isPresent(array,destination)==0:
+                lt.addLast(array, destination)
         else:
             array = lt.newList(datastructure='ARRAY_LIST', cmpfunction=compare)
             lt.addLast(array, destination)
