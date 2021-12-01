@@ -63,25 +63,29 @@ def info_graphs(analyzer):
     return model.info_graphs(analyzer)
 
 
-def requirement1():
-    return model.requirement1()
+def requirement1(analyzer):
+    return model.requirement1(analyzer)
 
 
-def requirement2():
-    return model.requirement2()
+def requirement2(analizer, iata1, iata2):
+    return model.requirement2(analizer, iata1, iata2)
 
 
-def requirement3():
-    return model.requirement3()
+def homonym_cities(analyzer, city):
+    return model.homonym_cities(analyzer, city)
 
 
-def requirement4():
-    return model.requirement4()
+def requirement3(analyzer, origin_dict, destiny_dict):
+    return model.requirement3(analyzer, origin_dict, destiny_dict)
 
 
-def requirement5():
-    return model.requirement5()
+def requirement4(analyzer):
+    return model.requirement4(analyzer)
 
 
-def requirement6():
-    return model.requirement6()
+def requirement5(analyzer):
+    return model.requirement5(analyzer)
+
+
+def requirement6(analyzer):
+    return model.requirement6(analyzer)

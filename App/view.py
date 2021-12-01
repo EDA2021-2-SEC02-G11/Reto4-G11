@@ -25,7 +25,7 @@ import config as cf
 import sys
 import controller
 from prettytable import PrettyTable
-# from DISClib.ADT import list as lt
+from DISClib.ADT import list as lt
 assert cf
 
 
@@ -60,11 +60,12 @@ def print_load_data():
     analyzer = controller.init()
     controller.load_data(analyzer)
     r = controller.info_graphs(analyzer)
-    ne_digraph, nv_digraph, ne_graph, nv_graph, ncities, a_dg, a_g, city = r
+    Ne_di, Nv_di, Ne_graph, Nv_graph, Ncities, Nhom, a_dg, a_g, city = r
+
     # Digraph
-    print('\nEn el dígrafo hay un total de '+str(nv_digraph) +
+    print('\nEn el dígrafo hay un total de '+str(Nv_di) +
           ' aeropuertos con abreviación IATA única.')
-    print('En el dígrafo hay un total de '+str(ne_digraph) +
+    print('En el dígrafo hay un total de '+str(Ne_di) +
           ' rutas aéreas dirigidas únicas.\n')
     print('Información del primer aeropuerto cargado en el dígrafo:')
     table1 = PrettyTable(['Nombre', 'Ciudad', 'País', 'Latitud',
@@ -75,12 +76,13 @@ def print_load_data():
                     a_dg['Latitude'],
                     a_dg['Longitude']])
     print(table1)
+
     # Graph
-    print('\nEn el grafo hay un total de '+str(nv_graph) +
+    print('\nEn el grafo no dirigido hay un total de '+str(Nv_graph) +
           ' aeropuertos con abreviación IATA única.')
-    print('En el grafo hay un total de '+str(ne_graph) +
+    print('En el grafo no dirigido hay un total de '+str(Ne_graph) +
           ' rutas aéreas bidireccionales únicas.\n')
-    print('Información del primer aeropuerto cargado en el grafo:')
+    print('Información del primer aeropuerto cargado en el grafo no dirigido:')
     table2 = PrettyTable(['Nombre', 'Ciudad', 'País', 'Latitud',
                          'Longitud'])
     table2.add_row([a_g['Name'],
@@ -89,8 +91,10 @@ def print_load_data():
                     a_g['Latitude'],
                     a_g['Longitude']])
     print(table2)
+
     # Cities
-    print('Hay un total de '+str(ncities)+' ciudades.\n')
+    print('Hay un total de '+str(Ncities)+' ciudades con nombres distintos. ' +
+          'Contando las ciudades homónimas, hay '+str(Nhom)+' ciudades.\n')
     print('Información de la última ciudad cargada:')
     table3 = PrettyTable(['Ciudad', 'Población', 'Latitud',
                          'Longitud'])
@@ -105,6 +109,77 @@ def print_load_data():
 catalog = None
 
 
+def print_req1(analyzer):
+    num_digraph, num_graph = controller.requirement2(analyzer)
+    # Digraph
+    print('Los aeropuertos que sirven como punto de interconexión a más ' +
+          'rutas aéreas en el dígrafo son:')
+    # TODO: Lista de aeropuertos (IATA, nombre, ciudad, país).
+    print('Cada uno se interconecta con '+str(num_digraph)+'aeropuertos')
+
+    # Graph
+    print('Los aeropuertos que sirven como punto de interconexión a más ' +
+          'rutas aéreas en el grafo no dirigido son:')
+    # TODO: Lista de aeropuertos (IATA, nombre, ciudad, país).
+    print('Cada uno se interconecta con '+str(num_graph)+'aeropuertos')
+
+
+def print_req2(analyzer):
+    iata1 = input('Ingrese el código IATA del primer aeropuerto: ')
+    iata2 = input('Ingrese el código IATA del segundo aeropuerto: ')
+    N_scc, si_no_scc = controller.requirement2(analyzer, iata1, iata2)
+    print('El número de clústeres presentes en la red de transporte aéreo, ' +
+          'que es el número de componentes fuertemente conectados en el ' +
+          'dígrafo, es'+str(N_scc))
+    print('Los dos aeropuertos ingresados, '+str(iata1)+' y '+str(iata2)+', ' +
+          str(si_no_scc)+'están en el mismo clúster.')
+
+
+def choose_homonym(hl):
+    """
+    Imprime una lista de ciudades homónimas con información del país, la
+    subregión (departamento, estado o prefectura) y la ubicación
+    geográfica (latitud y longitud) de cada una para que el usuario
+    pueda elegir entre ellas. retorna el diccionario con la información
+    de la ciudad elegida por el usuario.
+    """
+    table = PrettyTable(['Número', 'Ciudad', 'País', 'Subregión', 'Latitud',
+                        'Longitud'])
+    for i in range(1, lt.size(hl)+1):
+        table.add_row([str(i),
+                      lt.getElement(hl, i)['city'],
+                      lt.getElement(hl, i)['country'],
+                      lt.getElement(hl, i)['admin_name'].title(),
+                      lt.getElement(hl, i)['lat'].title(),
+                      lt.getElement(hl, i)['lng']])
+    print(table)
+    choice = int(input('Ingrese el número de la ciudad a la que se refiere: '))
+    dict_city = lt.getElement(hl, choice)
+    return dict_city
+
+
+def print_req3(analyzer):
+    origin = input('Ingrese la ciudad de origen: ')
+    destiny = input('Ingrese la ciudad de destino: ')
+    N_hom_origin, origin_list = controller.homonym_cities(analyzer, origin)
+    N_hom_destiny, destiny_list = controller.homonym_cities(analyzer, destiny)
+    if N_hom_origin > 1:
+        print('Hay '+str(N_hom_origin)+' ciudades homónimas a '+str(origin) +
+              '. Elija a cuál ciudad se refiere del siguiente listado:')
+        origin_dict = choose_homonym(origin_list)
+    if N_hom_destiny > 1:
+        print('Hay '+str(N_hom_destiny)+' ciudades homónimas a '+str(destiny) +
+              '. Elija a cuál ciudad se refiere del siguiente listado:')
+        destiny_dict = choose_homonym(destiny_list)
+    if (N_hom_origin == 1) and (N_hom_destiny == 1):
+        print('No hay ciudades homónimas a ninguna de las ingresadas')
+        # As there are no homonyms, 'homonym_cities' returns
+        # dictionaries, not lists
+        origin_dict = origin_list
+        destiny_dict = destiny_list
+    controller.requirement3(analyzer, origin_dict, destiny_dict)
+
+
 """
 Menú principal
 """
@@ -117,7 +192,7 @@ def thread_cycle():
                         'los requisitos.\n')
         print_menu()
         try:
-            inputs = int(input('Seleccione una opción para continuar:\n>'))
+            inputs = int(input('Seleccione una opción para continuar:\n> '))
         except Exception:
             print(error)
             continue
@@ -130,12 +205,12 @@ def thread_cycle():
                 print(error_cargar)
                 continue
             print('Los requerimientos aún no se han implementado.')
-            # if inputs == 1:
-            #     print_req1(analyzer)
-            # elif inputs == 2:
-            #     print_req2(analyzer)
-            # elif inputs == 3:
-            #     print_req3(analyzer)
+            if inputs == 1:
+                print_req1(analyzer)
+            elif inputs == 2:
+                print_req2(analyzer)
+            elif inputs == 3:
+                print_req3(analyzer)
             # elif inputs == 4:
             #     print_req4(analyzer)
             # elif inputs == 5:

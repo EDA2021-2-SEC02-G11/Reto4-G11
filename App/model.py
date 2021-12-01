@@ -31,7 +31,7 @@ from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
 # from DISClib.Algorithms.Sorting import shellsort as sa
-# from DISClib.Algorithms.Graphs import scc
+from DISClib.Algorithms.Graphs import scc
 # from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
 assert cf
@@ -53,8 +53,10 @@ def new_analyzer():
               de cada aeropuerto y como valores el diccionario con la
               información del aeropuerto.
     cities: Tabla de hash que tiene como llaves los nombres de las
-            ciudades y como valores el diccionario con la información de
-            la ciudad.
+            ciudades y como valores una lista con el diccionario con la 
+            información de la ciudad. Si varias ciudades son homónimas, 
+            la lista contiene los diccionarios con la información
+            de las ciudades.
     loaded: Estructura que almacena qué aeropuerto se cargó
             primero a cada grafo y qué ciudad se cargó última.
 
@@ -144,7 +146,7 @@ def add_route_digraph(analyzer, route):
         if route_exists:
             route_entry = mp.get(analyzer['routes'], origin)
             array = me.getValue(route_entry)
-            if lt.isPresent(array,destination)==0:
+            if lt.isPresent(array, destination) == 0:
                 lt.addLast(array, destination)
         else:
             array = lt.newList(datastructure='ARRAY_LIST', cmpfunction=compare)
@@ -208,7 +210,12 @@ def add_city(analyzer, city):
         # Add city to hash table
         city_exists = mp.contains(analyzer['cities'], city['city'])
         if not city_exists:
-            mp.put(analyzer['cities'], city['city'], city)
+            homonyms = lt.newList()
+            lt.addLast(homonyms, city)
+            mp.put(analyzer['cities'], city['city'], homonyms)
+        else:
+            homonyms = me.getValue(mp.get(analyzer['cities'], city['city']))
+            lt.addLast(homonyms, city)
 
         # Last city loaded
         analyzer['loaded']['last_city'] = city
@@ -221,41 +228,60 @@ def add_city(analyzer, city):
 
 
 def info_graphs(analyzer):
-    ne_digraph = gr.numEdges(analyzer['digraph'])
-    nv_digraph = gr.numVertices(analyzer['digraph'])
-    ne_graph = gr.numEdges(analyzer['graph'])
-    nv_graph = gr.numVertices(analyzer['graph'])
-    ncities = mp.size(analyzer['cities'])
+    Ne_di = gr.numEdges(analyzer['digraph'])
+    Nv_di = gr.numVertices(analyzer['digraph'])
+    Ne_graph = gr.numEdges(analyzer['graph'])
+    Nv_graph = gr.numVertices(analyzer['graph'])
+    Ncities = mp.size(analyzer['cities'])
+    Nhom = 41002  # TODO
     a_dg = analyzer['loaded']['first_digraph']
     a_g = analyzer['loaded']['first_graph']
     city = analyzer['loaded']['last_city']
-    return ne_digraph, nv_digraph, ne_graph, nv_graph, ncities, a_dg, a_g, city
+    return Ne_di, Nv_di, Ne_graph, Nv_graph, Ncities, Nhom, a_dg, a_g, city
 
 
 # Requirements
 
 
-def requirement1():
+def requirement1(analyzer):
     pass
 
 
-def requirement2():
+def requirement2(analyzer, iata1, iata2):
+    N_scc = scc.connectedComponents(scc.KosarajuSCC(analyzer['digraph']))
+    bool_scc = scc.stronglyConnected(scc.KosarajuSCC(analyzer['digraph']),
+                                     iata1, iata2)
+    if bool_scc is True:
+        si_no_scc = 'sí'
+    elif bool_scc is True:
+        si_no_scc = 'no'
+    return N_scc, si_no_scc
+
+
+def homonym_cities(analyzer, city):
+    map = analyzer['cities']
+    if mp.contains(map, city):
+        value = me.getValue(mp.get(map, city))
+        if lt.size(value) == 1:
+            return 1, lt.getElement(value, 1)
+        else:  # The value is a list of dictionaries
+            return lt.size(value), value
+
+
+def requirement3(analyzer, origin_dict, destiny_dict):
+    print(origin_dict)
+    print(destiny_dict)
+
+
+def requirement4(analyzer):
     pass
 
 
-def requirement3():
+def requirement5(analyzer):
     pass
 
 
-def requirement4():
-    pass
-
-
-def requirement5():
-    pass
-
-
-def requirement6():
+def requirement6(analyzer):
     pass
 
 
