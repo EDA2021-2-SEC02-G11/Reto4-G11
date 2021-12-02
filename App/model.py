@@ -54,8 +54,8 @@ def new_analyzer():
               de cada aeropuerto y como valores el diccionario con la
               información del aeropuerto.
     cities: Tabla de hash que tiene como llaves los nombres de las
-            ciudades y como valores una lista con el diccionario con la 
-            información de la ciudad. Si varias ciudades son homónimas, 
+            ciudades y como valores una lista con el diccionario con la
+            información de la ciudad. Si varias ciudades son homónimas,
             la lista contiene los diccionarios con la información
             de las ciudades.
     loaded: Estructura que almacena qué aeropuerto se cargó
@@ -273,19 +273,22 @@ def requirement3(analyzer, origin_dict, destiny_dict):
     print(origin_dict)
     print(destiny_dict)
 
+
 def haversine(lon1, lat1, lon2, lat2):
     """
-    Calcula la distancia harvesiana entre dos puntos  
-    """ 
+    Calcula la distancia entre dos puntos utilizando la Fórmula del
+    semiverseno.
+    """
     lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
 
-    dlon = lon2 - lon1 
-    dlat = lat2 - lat1 
-    
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
-    c = 2 * asin(sqrt(a)) 
+    c = 2 * asin(sqrt(a))
     km = 6367 * c
     return km
+
 
 def requirement4(analyzer):
     pass
