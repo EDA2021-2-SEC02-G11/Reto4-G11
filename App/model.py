@@ -299,13 +299,13 @@ def homonym_cities(analyzer, city):
             return lt.size(value), value
 
 
-def requirement3(analyzer, origin_dict, destiny_dict):
+def requirement3(analyzer, origin_dict, destiny_dict,catalog):
 
     print(origin_dict)
     print(destiny_dict)
 
     sample = lt.newList(datastructure='ARRAY_LIST')
-    tree=catalog["tree"]
+    tree=catalog["airports_tree"]
     lat=212432
     lon=-2323
     lat_max=lat+5
