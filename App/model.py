@@ -34,6 +34,7 @@ from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Graphs import scc
 # from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
+from DISClib.ADT import orderedmap as om
 from math import radians, cos, sin, asin, sqrt
 assert cf
 
@@ -269,10 +270,37 @@ def homonym_cities(analyzer, city):
             return lt.size(value), value
 
 
-def requirement3(analyzer, origin_dict, destiny_dict):
+def requirement3(analyzer, origin_dict, destiny_dict,catalog):
     print(origin_dict)
     print(destiny_dict)
 
+    sample = lt.newList(datastructure='ARRAY_LIST')
+    tree=catalog["tree"]
+    lat=212432
+    lon=-2323
+    lat_max=lat+5
+    lat_min=lat-5
+    lon_max=lon+5
+    lon_min=lon-5
+    i=False
+    while i==False:
+        range_lat=om.values(tree,lat_min,lat_max)
+        j=1
+        while j <= lt.size(range_lat):
+            lon_tree = lt.getElement(range_lat, j)
+            values_lon_tree = om.values(lon_tree, lon_min, lon_max)
+            j+=1
+            j1 = 1
+            while j1 <= lt.size(values_lon_tree):
+                sightings_list = lt.getElement(values_lon_tree, j1)
+                j1 += 1
+                k1 = 1
+                while k1 <= lt.size(sightings_list):
+                    sighting = lt.getElement(sightings_list, k1)
+                    lt.addLast(sample, sighting)
+                    i=True
+                    k1 += 1
+    
 
 def haversine(lon1, lat1, lon2, lat2):
     """
