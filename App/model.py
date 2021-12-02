@@ -29,6 +29,7 @@ import config as cf
 from DISClib.ADT.graph import gr
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
+from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import mapentry as me
 # from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Algorithms.Graphs import scc
@@ -72,6 +73,7 @@ def new_analyzer():
                     'routes': None,
                     'airports': None,
                     'cities': None,
+                    'airports_tree': None,
                     'loaded': {},
                     'components': None,
                     'paths': None
@@ -94,6 +96,8 @@ def new_analyzer():
         analyzer['cities'] = mp.newMap(numelements=37500,
                                        maptype='PROBING',
                                        comparefunction=comparek)
+        analyzer['airports_tree'] = om.newMap(omaptype='RBT',
+                                              comparefunction=compare)
         return analyzer
     except Exception as exp:
         error.reraise(exp, 'model: new_analyzer')
@@ -117,6 +121,9 @@ def add_airport(analyzer, airport):
         airport_exists = mp.contains(analyzer['airports'], airport['IATA'])
         if not airport_exists:
             mp.put(analyzer['airports'], airport['IATA'], airport)
+
+        # Add airport to airports tree
+        create_airports_tree(analyzer, airport)
 
         # First airport loaded to digraph
         if 'first_digraph' not in analyzer['loaded']:
@@ -225,6 +232,28 @@ def add_city(analyzer, city):
         error.reraise(exp, 'model: add_city')
 
 
+def create_airports_tree(analyzer, airport):
+    """
+    Crea el árbol de aeropuertos.
+    El árbol tiene como llaves la coordenada latitud (aproximada a dos cifras
+    decimales) y como valores árboles. Cada árbol tiene como llaves
+    coordenadas de longitud (aproximadas a dos cifras decimales) y como valor
+    para cada llave el aeropuerto ubicado en la latitud y longitud dadas.
+    """
+    lat_tree = analyzer['airports_tree']
+    lat_tree_entry = om.get(lat_tree, float(airport['Latitude']))
+    if lat_tree_entry is None:
+        long_tree = om.newMap(omaptype='RBT', comparefunction=compare)
+        om.put(long_tree, float(airport['Longitude']), airport)
+        om.put(lat_tree, float(airport['Latitude']), long_tree)
+    else:
+        long_tree = me.getValue(lat_tree_entry)
+        long_tree_entry = om.get(long_tree, float(airport['Longitude']))
+        if long_tree_entry is None:
+            om.put(long_tree, float(airport['Longitude']), airport)
+    return lat_tree
+
+
 # Load data
 
 
@@ -270,6 +299,7 @@ def homonym_cities(analyzer, city):
 
 
 def requirement3(analyzer, origin_dict, destiny_dict):
+
     print(origin_dict)
     print(destiny_dict)
 
