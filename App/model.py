@@ -306,12 +306,12 @@ def requirement3(analyzer, origin_dict, destiny_dict,catalog):
 
     sample = lt.newList(datastructure='ARRAY_LIST')
     tree=catalog["airports_tree"]
-    lat=212432
-    lon=-2323
-    lat_max=lat+5
-    lat_min=lat-5
-    lon_max=lon+5
-    lon_min=lon-5
+    lat=origin_dict["lat"]
+    lon=-origin_dict["lng"]
+    lat_max=lat+0.01
+    lat_min=lat-0.01
+    lon_max=lon+0.01
+    lon_min=lon-0.01
     i=False
     while i==False:
         range_lat=om.values(tree,lat_min,lat_max)
@@ -330,10 +330,10 @@ def requirement3(analyzer, origin_dict, destiny_dict,catalog):
                     lt.addLast(sample, sighting)
                     i=True
                     k1 += 1
-        lat_max+=5
-        lat_min+=5
-        lon_max+=5
-        lon_min+=5
+        lat_max+=0.01
+        lat_min+=0.01
+        lon_max+=0.01
+        lon_min+=0.01
 
 def haversine(lon1, lat1, lon2, lat2):
     """
