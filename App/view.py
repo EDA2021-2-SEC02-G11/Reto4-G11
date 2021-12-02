@@ -164,21 +164,20 @@ def print_req3(analyzer):
     N_hom_origin, origin_list = controller.homonym_cities(analyzer, origin)
     N_hom_destiny, destiny_list = controller.homonym_cities(analyzer, destiny)
     if N_hom_origin > 1:
-        print('Hay '+str(N_hom_origin)+' ciudades homónimas a '+str(origin) +
+        print('\nHay '+str(N_hom_origin)+' ciudades homónimas a '+str(origin) +
               '. Elija a cuál ciudad se refiere del siguiente listado:')
         origin_dict = choose_homonym(origin_list)
     else:
+        print('\nNo hay ciudades homónimas a '+str(origin))
         origin_dict = origin_list
     if N_hom_destiny > 1:
-        print('Hay '+str(N_hom_destiny)+' ciudades homónimas a '+str(destiny) +
+        print('\nHay '+str(N_hom_destiny)+' ciudades homónimas a ' +
+              str(destiny) +
               '. Elija a cuál ciudad se refiere del siguiente listado:')
         destiny_dict = choose_homonym(destiny_list)
     else:
+        print('\nNo hay ciudades homónimas a '+str(destiny))
         destiny_dict = destiny_list
-    if (N_hom_origin == 1) and (N_hom_destiny == 1):
-        print('No hay ciudades homónimas a ninguna de las ingresadas')
-        # As there are no homonyms, 'homonym_cities' returns
-        # dictionaries, not lists
     controller.requirement3(analyzer, origin_dict, destiny_dict)
 
 
@@ -206,7 +205,6 @@ def thread_cycle():
             except NameError:
                 print(error_cargar)
                 continue
-            print('Los requerimientos aún no se han implementado.')
             if inputs == 1:
                 print_req1(analyzer)
             elif inputs == 2:
