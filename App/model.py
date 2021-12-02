@@ -34,6 +34,7 @@ from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Graphs import scc
 # from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
+import numpy as np
 assert cf
 
 
@@ -272,6 +273,20 @@ def requirement3(analyzer, origin_dict, destiny_dict):
     print(origin_dict)
     print(destiny_dict)
 
+def haversine(lon1, lat1, lon2, lat2):
+    """
+    Calcula la distancia harvesiana entre dos puntos  
+    """
+    lon1, lat1, lon2, lat2 = map(np.radians, [lon1, lat1, lon2, lat2])
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
+    a = np.sin(dlat/2.0)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2.0)**2
+
+    c = 2 * np.arcsin(np.sqrt(a))
+    km = 6367 * c
+    return km
 
 def requirement4(analyzer):
     pass
