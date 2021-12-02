@@ -35,8 +35,7 @@ from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Graphs import scc
 # from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
-from DISClib.ADT import orderedmap as om
-from math import inf, radians, cos, sin, asin, sqrt
+from math import radians, cos, sin, asin, sqrt
 assert cf
 
 
@@ -300,63 +299,58 @@ def homonym_cities(analyzer, city):
 
 
 def requirement3(analyzer, origin_dict, destiny_dict):
-
-    print(origin_dict)
-    print(destiny_dict)
-
-    origen=cuadrado(analyzer,origin_dict)
-    destino=cuadrado(analyzer,destiny_dict)
-    aerOrigen=nearAirport(origen,origin_dict)
-    aerDestino=nearAirport(destino,destiny_dict)
-    
+    origen = cuadrado(analyzer, origin_dict)
+    destino = cuadrado(analyzer, destiny_dict)
+    aerOrigen = nearAirport(origen, origin_dict)
+    aerDestino = nearAirport(destino, destiny_dict)
     return aerOrigen, aerDestino
 
-def nearAirport(origen,origin_dict):
-    if lt.size(origen)>1:
-        menor=float("inf")
-        aerOrigen=""
-        for i in lt.iterator(origen):
-            harvesiana=haversine(origin_dict["lng"],origin_dict["lat"],i["Longitude"],i["Latitude"])
-            if harvesiana<menor:
-                menor=harvesiana
-                aerOrigen=i
-    return aerOrigen
 
-        
+def nearAirport(list_airports, city_dict):
+    if lt.size(list_airports) > 1:
+        menor = float("inf")
+        for i in lt.iterator(list_airports):
+            harvesiana = haversine(float(city_dict["lng"]),
+                                   float(city_dict["lat"]),
+                                   float(i["Longitude"]), float(i["Latitude"]))
+            if harvesiana < menor:
+                menor = harvesiana
+                airport = i
+    else:
+        airport = lt.getElement(list_airports, 1)
+    return airport
 
-def cuadrado(analyzer,origin_dict):
+
+def cuadrado(analyzer, origin_dict):
     sample = lt.newList(datastructure='ARRAY_LIST')
-    tree=analyzer["airports_tree"]
-    lat=float(origin_dict["lat"])
-    lon=float(origin_dict["lng"])
-    lat_max=lat+0.01
-    lat_min=lat-0.01
-    lon_max=lon+0.01
-    lon_min=lon-0.01
-    i=False
-    while i==False:
-        range_lat=om.values(tree,lat_min,lat_max)
-        j=1
+    tree = analyzer["airports_tree"]
+    lat = float(origin_dict["lat"])
+    lon = float(origin_dict["lng"])
+    medida_cuadrado = 0.01  # 0.01 degrees = approximately 10 km
+    lat_max = lat+medida_cuadrado
+    lat_min = lat-medida_cuadrado
+    i = False
+    while i is False:
+        range_lat = om.values(tree, lat_min, lat_max)
+        j = 1
+        lon_max = lon+medida_cuadrado
+        lon_min = lon-medida_cuadrado
         while j <= lt.size(range_lat):
             lon_tree = lt.getElement(range_lat, j)
             values_lon_tree = om.values(lon_tree, lon_min, lon_max)
-            j+=1
-            j1 = 1
-            while j1 <= lt.size(values_lon_tree):
-                sightings_list = lt.getElement(values_lon_tree, j1)
-                j1 += 1
-                k1 = 1
-                if lt.isEmpty(sightings_list) is False:
-                    while k1 <= lt.size(sightings_list):
-                        sighting = lt.getElement(sightings_list, k1)
-                        lt.addLast(sample, sighting)
-                        i=True
-                        k1 += 1
-        lat_max+=0.01
-        lat_min-=0.01
-        lon_max+=0.01
-        lon_min-=0.01
+            k = 1
+            while k <= lt.size(values_lon_tree):
+                airport = lt.getElement(values_lon_tree, k)
+                lt.addLast(sample, airport)
+                i = True
+                k += 1
+            lon_max += medida_cuadrado
+            lon_min -= medida_cuadrado
+            j += 1
+        lat_max += medida_cuadrado
+        lat_min -= medida_cuadrado
     return sample
+
 
 def haversine(lon1, lat1, lon2, lat2):
     """

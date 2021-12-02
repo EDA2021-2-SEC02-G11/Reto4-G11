@@ -178,7 +178,9 @@ def print_req3(analyzer):
     else:
         print('\nNo hay ciudades homónimas a '+str(destiny))
         destiny_dict = destiny_list
-    controller.requirement3(analyzer, origin_dict, destiny_dict)
+    ao, ad = controller.requirement3(analyzer, origin_dict, destiny_dict)
+    print('\nAeropuerto de origen: '+str(ao['Name']))
+    print('Aeropuerto de destino: '+str(ad['Name']))
 
 
 """
