@@ -330,7 +330,10 @@ def requirement3(analyzer, origin_dict, destiny_dict):
                     lt.addLast(sample, sighting)
                     i=True
                     k1 += 1
-    
+        lat_max+=5
+        lat_min+=5
+        lon_max+=5
+        lon_min+=5
 
 def haversine(lon1, lat1, lon2, lat2):
     """
