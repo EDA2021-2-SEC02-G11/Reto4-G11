@@ -150,14 +150,14 @@ def print_req1(analyzer):
 
 
 def print_req2(analyzer):
-    iata1 = input('Ingrese el código IATA del primer aeropuerto: ')
-    iata2 = input('Ingrese el código IATA del segundo aeropuerto: ')
-    N_scc, si_no_scc = controller.requirement2(analyzer, iata1, iata2)
-    print('El número de clústeres presentes en la red de transporte aéreo, ' +
-          'que es el número de componentes fuertemente conectados en el ' +
-          'dígrafo, es'+str(N_scc))
-    print('Los dos aeropuertos ingresados, '+str(iata1)+' y '+str(iata2)+', ' +
-          str(si_no_scc)+'están en el mismo clúster.')
+    print('=============== Req. No 2 Inputs ===============')
+    iata1 = input('Airport-1 AITA code: ')
+    iata2 = input('Airport-2 AITA code: ')
+    N_scc, bool_scc = controller.requirement2(analyzer, iata1, iata2)
+    print('\n=============== Req. No 2 Answer ===============')
+    print('Number of SCC in Airport-Rout network '+str(N_scc))
+    print('Do airport-1 & airport-2, with IATA codes '+iata1+' and '+iata2 +
+          ', belong together? '+str(bool_scc))
 
 
 def choose_homonym(hl):

@@ -269,11 +269,7 @@ def requirement2(analyzer, iata1, iata2):
     N_scc = scc.connectedComponents(scc.KosarajuSCC(analyzer['digraph']))
     bool_scc = scc.stronglyConnected(scc.KosarajuSCC(analyzer['digraph']),
                                      iata1, iata2)
-    if bool_scc is True:
-        si_no_scc = 'sí'
-    elif bool_scc is True:
-        si_no_scc = 'no'
-    return N_scc, si_no_scc
+    return N_scc, bool_scc
 
 
 def homonym_cities(analyzer, city):
