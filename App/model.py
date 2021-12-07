@@ -243,11 +243,13 @@ def info_graphs(analyzer):
 def requirement1(analyzer):
     digraph = analyzer['digraph']
     N_connected = 0
-    max5 = -float('inf')
+    scooby = {}
     for vertex in lt.iterator(gr.vertices(digraph)):
-        degree_ = gr.degree(digraph, vertex)
-        if degree_ > max5:
+        degree_ = gr.indegree(digraph, vertex)+gr.outdegree(digraph, vertex)
+        if degree_ > 0:
             N_connected += 1
+            scooby[vertex] = degree_
+    # Incompleta. Terminar.
     return N_connected
 
 
