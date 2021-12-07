@@ -59,49 +59,74 @@ def print_load_data():
     print('Cargando información de los archivos...\n')
     analyzer = controller.init()
     controller.load_data(analyzer)
-    r = controller.info_graphs(analyzer)
-    Ne_di, Nv_di, Ne_graph, Nv_graph, Ncities, Nhom, a_dg, a_g, city = r
-
+    loaded = controller.info_graphs(analyzer)
     # Digraph
-    print('\nEn el dígrafo hay un total de '+str(Nv_di) +
-          ' aeropuertos con abreviación IATA única.')
-    print('En el dígrafo hay un total de '+str(Ne_di) +
-          ' rutas aéreas dirigidas únicas.\n')
-    print('Información del primer aeropuerto cargado en el dígrafo:')
-    table1 = PrettyTable(['Nombre', 'Ciudad', 'País', 'Latitud',
-                         'Longitud'])
-    table1.add_row([a_dg['Name'],
-                    a_dg['City'],
-                    a_dg['Country'],
-                    a_dg['Latitude'],
-                    a_dg['Longitude']])
+    print('=== Airports-Routes Digraph ===')
+    print('Nodes: '+str(loaded['N_vertices_digraph'])+' loaded airports.')
+    print('Edges: '+str(loaded['N_edges_digraph'])+' loaded routes.')
+    print('Note: There are '+str(loaded['N_edges_digraph'])+' edges despite ' +
+          'there being 39 routes because there are different airlines.')
+    print('First & last aiport loaded in the digraph.')
+    table1 = PrettyTable(['IATA', 'Name', 'City', 'Country', 'Latitude',
+                         'Longitude'])
+    table1.add_row([loaded['first_digraph']['IATA'],
+                    loaded['first_digraph']['Name'],
+                    loaded['first_digraph']['City'],
+                    loaded['first_digraph']['Country'],
+                    loaded['first_digraph']['Latitude'],
+                    loaded['first_digraph']['Longitude']])
+    table1.add_row([loaded['last_digraph']['IATA'],
+                    loaded['last_digraph']['Name'],
+                    loaded['last_digraph']['City'],
+                    loaded['last_digraph']['Country'],
+                    loaded['last_digraph']['Latitude'],
+                    loaded['last_digraph']['Longitude']])
+    table1.hrules = 1
     print(table1)
 
     # Graph
-    print('\nEn el grafo no dirigido hay un total de '+str(Nv_graph) +
-          ' aeropuertos con abreviación IATA única.')
-    print('En el grafo no dirigido hay un total de '+str(Ne_graph) +
-          ' rutas aéreas bidireccionales únicas.\n')
-    print('Información del primer aeropuerto cargado en el grafo no dirigido:')
-    table2 = PrettyTable(['Nombre', 'Ciudad', 'País', 'Latitud',
-                         'Longitud'])
-    table2.add_row([a_g['Name'],
-                    a_g['City'],
-                    a_g['Country'],
-                    a_g['Latitude'],
-                    a_g['Longitude']])
+    print('\n=== Airports-Routes Graph ===')
+    print('Nodes: '+str(loaded['N_vertices_graph'])+' loaded airports.')
+    print('Edges: '+str(loaded['N_edges_graph'])+' loaded routes.')
+    print('Note: There are '+str(loaded['N_edges_graph'])+' edges despite ' +
+          'there being 16 routes because there are different airlines.')
+    print('First & last aiport loaded in the graph.')
+    table2 = PrettyTable(['IATA', 'Name', 'City', 'Country', 'Latitude',
+                         'Longitude'])
+    table2.add_row([loaded['first_graph']['IATA'],
+                    loaded['first_graph']['Name'],
+                    loaded['first_graph']['City'],
+                    loaded['first_graph']['Country'],
+                    loaded['first_graph']['Latitude'],
+                    loaded['first_graph']['Longitude']])
+    table2.add_row([loaded['last_graph']['IATA'],
+                    loaded['last_graph']['Name'],
+                    loaded['last_graph']['City'],
+                    loaded['last_graph']['Country'],
+                    loaded['last_graph']['Latitude'],
+                    loaded['last_graph']['Longitude']])
+    table2.hrules = 1
     print(table2)
 
     # Cities
-    print('Hay un total de '+str(Ncities)+' ciudades con nombres distintos. ' +
-          'Contando las ciudades homónimas, hay '+str(Nhom)+' ciudades.\n')
-    print('Información de la última ciudad cargada:')
-    table3 = PrettyTable(['Ciudad', 'Población', 'Latitud',
-                         'Longitud'])
-    table3.add_row([city['city'],
-                    city['population'],
-                    city['lat'],
-                    city['lng']])
+    print('\n=== City Network ===')
+    print('The number of cities is: '+str(loaded['N_cities']))
+    print('Note: Only '+str(loaded['N_dif_cities'])+' cities have different ' +
+          'names.')
+    print('First & last city loaded in the data structure.')
+    table3 = PrettyTable(['City', 'Country', 'Latitude',
+                         'Longitude', 'Population'])
+    table3.add_row([loaded['first_city']['city'],
+                    loaded['first_city']['country'],
+                    loaded['first_city']['lat'],
+                    loaded['first_city']['lng'],
+                    loaded['first_city']['population']])
+    table3.add_row([loaded['last_city']['city'],
+                    loaded['last_city']['country'],
+                    loaded['last_city']['lat'],
+                    loaded['last_city']['lng'],
+                    loaded['last_city']['population']])
+    table3.hrules = 1
     print(table3)
     return analyzer
 
@@ -152,6 +177,7 @@ def choose_homonym(hl):
                       lt.getElement(hl, i)['admin_name'].title(),
                       lt.getElement(hl, i)['lat'].title(),
                       lt.getElement(hl, i)['lng']])
+    table.hrules = 1
     print(table)
     choice = int(input('Ingrese el número de la ciudad a la que se refiere: '))
     dict_city = lt.getElement(hl, choice)

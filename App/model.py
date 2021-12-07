@@ -117,6 +117,10 @@ def add_airport(analyzer, airport):
         if not gr.containsVertex(analyzer['digraph'], airport['IATA']):
             gr.insertVertex(analyzer['digraph'], airport['IATA'])
 
+        # Add vertex to graph
+        if not gr.containsVertex(analyzer['graph'], airport['IATA']):
+            gr.insertVertex(analyzer['graph'], airport['IATA'])
+
         # Add airport to hash table
         airport_exists = mp.contains(analyzer['airports'], airport['IATA'])
         if not airport_exists:
@@ -125,9 +129,15 @@ def add_airport(analyzer, airport):
         # Add airport to airports tree
         create_airports_tree(analyzer, airport)
 
-        # First airport loaded to digraph
+        # First and last airport loaded to digraph
         if 'first_digraph' not in analyzer['loaded']:
             analyzer['loaded']['first_digraph'] = airport
+        analyzer['loaded']['last_digraph'] = airport
+
+        # First and last airport loaded to graph
+        if 'first_graph' not in analyzer['loaded']:
+            analyzer['loaded']['first_graph'] = airport
+        analyzer['loaded']['last_graph'] = airport
 
     except Exception as exp:
         error.reraise(exp, 'model: add_airport')
@@ -142,26 +152,26 @@ def add_route_digraph(analyzer, route):
         origin = route['Departure']
         destination = route['Destination']
         distance = float(route['distance_km'])
-        edge = gr.getEdge(analyzer['digraph'], origin, destination)
-        if edge is None:
+        digraph = analyzer['digraph']
+        if gr.getEdge(digraph, origin, destination) is None:
             gr.addEdge(analyzer['digraph'], origin, destination, distance)
     except Exception as exp:
         error.reraise(exp, 'model: add_route_digraph: add_edge')
 
     # Add destination from route to destination list in hash table
-    try:
-        route_exists = mp.contains(analyzer['routes'], origin)
-        if route_exists:
-            route_entry = mp.get(analyzer['routes'], origin)
-            array = me.getValue(route_entry)
-            if lt.isPresent(array, destination) == 0:
-                lt.addLast(array, destination)
-        else:
-            array = lt.newList(datastructure='ARRAY_LIST', cmpfunction=compare)
-            lt.addLast(array, destination)
-            mp.put(analyzer['routes'], origin, array)
-    except Exception as exp:
-        error.reraise(exp, 'model: add_route_digraph: put_hashtable')
+    # try:
+    #     route_exists = mp.contains(analyzer['routes'], origin)
+    #     if route_exists:
+    #         route_entry = mp.get(analyzer['routes'], origin)
+    #         array = me.getValue(route_entry)
+    #         if lt.isPresent(array, destination) == 0:
+    #             lt.addLast(array, destination)
+    #     else:
+    #         array = lt.newList(datastructure='ARRAY_LIST', cmpfunction=compare)
+    #         lt.addLast(array, destination)
+    #         mp.put(analyzer['routes'], origin, array)
+    # except Exception as exp:
+    #     error.reraise(exp, 'model: add_route_digraph: put_hashtable')
 
 
 def add_route_graph(analyzer, route):
@@ -174,36 +184,11 @@ def add_route_graph(analyzer, route):
         origin = route['Departure']
         destination = route['Destination']
         dist = float(route['distance_km'])
-
-        destination_exists = mp.contains(analyzer['routes'], destination)
-        if destination_exists:
-            destination_entry = mp.get(analyzer['routes'], destination)
-            array = me.getValue(destination_entry)
-            if lt.isPresent(array, origin) != 0:
-                # 'origin' is in the array that is value of the key
-                # 'destination' in the hash table. Thus, there exists an
-                # edge destination -> origin.
-                if not gr.containsVertex(analyzer['graph'], origin):
-                    gr.insertVertex(analyzer['graph'], origin)
-                if not gr.containsVertex(analyzer['graph'], destination):
-                    gr.insertVertex(analyzer['graph'], destination)
-                edge = gr.getEdge(analyzer['graph'], origin, destination)
-                if edge is None:
-                    gr.addEdge(analyzer['graph'], origin, destination, dist)
-                # Given that the graph is not directed, when invoking
-                # gr.addEdge(graph, origin, destination) not only an
-                # edge origin -> destination is added but also an edge
-                # destination -> origin. Due to that, when using
-                # 'origin' and 'destination' as parameters of
-                # gr.getEdge() or gr.addEdge() their positions are
-                # interchangeable.
-
-                # First airport loaded to graph
-                if 'first_graph' not in analyzer['loaded']:
-                    entry = mp.get(analyzer['airports'], origin)
-                    airport = me.getValue(entry)
-                    analyzer['loaded']['first_graph'] = airport
-
+        digraph = analyzer['digraph']
+        if gr.getEdge(digraph, origin, destination) is not None and \
+           gr.getEdge(digraph, destination, origin) is not None:
+            if gr.getEdge(analyzer['graph'], origin, destination) is None:
+                gr.addEdge(analyzer['graph'], origin, destination, dist)
     except Exception as exp:
         error.reraise(exp, 'model: add_route_graph')
 
@@ -225,7 +210,9 @@ def add_city(analyzer, city):
             homonyms = me.getValue(mp.get(analyzer['cities'], city['city']))
             lt.addLast(homonyms, city)
 
-        # Last city loaded
+        # First and last city loaded
+        if 'first_city' not in analyzer['loaded']:
+            analyzer['loaded']['first_city'] = city
         analyzer['loaded']['last_city'] = city
 
     except Exception as exp:
@@ -257,17 +244,18 @@ def create_airports_tree(analyzer, airport):
 # Load data
 
 
+def count_cities(analyzer, count):
+    analyzer['loaded']['N_cities'] = count
+
+
 def info_graphs(analyzer):
-    Ne_di = gr.numEdges(analyzer['digraph'])
-    Nv_di = gr.numVertices(analyzer['digraph'])
-    Ne_graph = gr.numEdges(analyzer['graph'])
-    Nv_graph = gr.numVertices(analyzer['graph'])
-    Ncities = mp.size(analyzer['cities'])
-    Nhom = 41002  # TODO
-    a_dg = analyzer['loaded']['first_digraph']
-    a_g = analyzer['loaded']['first_graph']
-    city = analyzer['loaded']['last_city']
-    return Ne_di, Nv_di, Ne_graph, Nv_graph, Ncities, Nhom, a_dg, a_g, city
+    loaded = analyzer['loaded']
+    loaded['N_edges_digraph'] = gr.numEdges(analyzer['digraph'])
+    loaded['N_vertices_digraph'] = gr.numVertices(analyzer['digraph'])
+    loaded['N_edges_graph'] = gr.numEdges(analyzer['graph'])
+    loaded['N_vertices_graph'] = gr.numVertices(analyzer['graph'])
+    loaded['N_dif_cities'] = mp.size(analyzer['cities'])
+    return loaded
 
 
 # Requirements
