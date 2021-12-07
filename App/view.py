@@ -135,18 +135,25 @@ catalog = None
 
 
 def print_req1(analyzer):
-    num_digraph, num_graph = controller.requirement2(analyzer)
-    # Digraph
-    print('Los aeropuertos que sirven como punto de interconexión a más ' +
-          'rutas aéreas en el dígrafo son:')
-    # TODO: Lista de aeropuertos (IATA, nombre, ciudad, país).
-    print('Cada uno se interconecta con '+str(num_digraph)+'aeropuertos')
-
-    # Graph
-    print('Los aeropuertos que sirven como punto de interconexión a más ' +
-          'rutas aéreas en el grafo no dirigido son:')
-    # TODO: Lista de aeropuertos (IATA, nombre, ciudad, país).
-    print('Cada uno se interconecta con '+str(num_graph)+'aeropuertos')
+    print('=============== Req. No 1 Inputs ===============')
+    print('Most connected airports in network (top 5)')
+    print('Number of airports in network: ' +
+          str(analyzer['loaded']['N_vertices_digraph']))
+    N_connected = controller.requirement1(analyzer)
+    print('\n=============== Req. No 1 Answer ===============')
+    print('Connected airports inside network: '+str(N_connected))
+    print('Top 5 most connected airports...')
+    # table1 = PrettyTable(['Name', 'City', 'Country', 'IATA', 'Connections',
+    #                       'Inbound', 'Outbound'])
+    # table1.add_row([ao['Name'],
+    #                 ao['City'],
+    #                 ao['Country'],
+    #                 ao['IATA'],
+    #                 ao['Connections'],
+    #                 ao['Inbound'],
+    #                 ao['Outbound']])
+    # table1.hrules = 1
+    # print(table1)
 
 
 def print_req2(analyzer):
@@ -168,8 +175,8 @@ def choose_homonym(hl):
     pueda elegir entre ellas. retorna el diccionario con la información
     de la ciudad elegida por el usuario.
     """
-    table = PrettyTable(['Número', 'Ciudad', 'País', 'Subregión', 'Latitud',
-                        'Longitud'])
+    table = PrettyTable(['Number', 'City', 'County', 'Subregion', 'Latitude',
+                        'Longitude'])
     for i in range(1, lt.size(hl)+1):
         table.add_row([str(i),
                       lt.getElement(hl, i)['city'],
@@ -179,34 +186,68 @@ def choose_homonym(hl):
                       lt.getElement(hl, i)['lng']])
     table.hrules = 1
     print(table)
-    choice = int(input('Ingrese el número de la ciudad a la que se refiere: '))
+    choice = int(input('Enter the number of the correct city: '))
     dict_city = lt.getElement(hl, choice)
     return dict_city
 
 
 def print_req3(analyzer):
-    origin = input('Ingrese la ciudad de origen: ')
-    destiny = input('Ingrese la ciudad de destino: ')
+    print('=============== Req. No 3 Inputs ===============')
+    origin = input('Departure city: ')
+    destiny = input('Arrival city: ')
     N_hom_origin, origin_list = controller.homonym_cities(analyzer, origin)
     N_hom_destiny, destiny_list = controller.homonym_cities(analyzer, destiny)
     if N_hom_origin > 1:
-        print('\nHay '+str(N_hom_origin)+' ciudades homónimas a '+str(origin) +
-              '. Elija a cuál ciudad se refiere del siguiente listado:')
+        print('\nThere are '+str(N_hom_origin)+' homonym cities to ' +
+              str(origin)+'. Choose a city from the following list:')
         origin_dict = choose_homonym(origin_list)
     else:
-        print('\nNo hay ciudades homónimas a '+str(origin))
+        print('\nNo cities homonym to '+str(origin))
         origin_dict = origin_list
     if N_hom_destiny > 1:
-        print('\nHay '+str(N_hom_destiny)+' ciudades homónimas a ' +
-              str(destiny) +
-              '. Elija a cuál ciudad se refiere del siguiente listado:')
+        print('\nThere are '+str(N_hom_destiny)+' homonym cities to ' +
+              str(destiny)+'. Choose a city from the following list:')
         destiny_dict = choose_homonym(destiny_list)
     else:
-        print('\nNo hay ciudades homónimas a '+str(destiny))
+        print('\nNo cities homonym to '+str(destiny))
         destiny_dict = destiny_list
-    ao, ad = controller.requirement3(analyzer, origin_dict, destiny_dict)
-    print('\nAeropuerto de origen: '+str(ao['Name']))
-    print('Aeropuerto de destino: '+str(ad['Name']))
+    ao, ad, dist, path, stops = controller.requirement3(analyzer, origin_dict,
+                                                        destiny_dict)
+    print('\n=============== Req. No 3 Answer ===============')
+    print('+++ The departure airport in '+origin+' is +++')
+    table1 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
+    table1.add_row([ao['IATA'],
+                    ao['Name'],
+                    ao['City'],
+                    ao['Country']])
+    table1.hrules = 1
+    print(table1)
+    print('\n+++ The arrival airport in '+destiny+' is +++')
+    table2 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
+    table2.add_row([ad['IATA'],
+                    ad['Name'],
+                    ad['City'],
+                    ad['Country']])
+    table2.hrules = 1
+    print(table2)
+    print("\n+++ Dijkstra's trip details +++")
+    print(' - Total distance: '+str(dist)+' (km)')
+    print(' - Trip path: ')
+    table3 = PrettyTable(['Airline', 'Departure', 'Destination', 'Distance'])
+    table3.add_row([path['Airline'],
+                    path['Departure'],
+                    path['Destination'],
+                    path['distance_km']])
+    table3.hrules = 1
+    print(table3)
+    print(' - Trip stops: ')
+    table4 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
+    table4.add_row([stops['IATA'],
+                    stops['Name'],
+                    stops['City'],
+                    stops['Country']])
+    table4.hrules = 1
+    print(table4)
 
 
 """

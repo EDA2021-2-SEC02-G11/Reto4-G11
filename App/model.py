@@ -48,9 +48,6 @@ def new_analyzer():
     graph: Grafo no dirigido en el cual se incluirán solamente los
            aeropuertos y las rutas que tengan tanto una ruta de ida
            entre los dos aeropuertos como una de vuelta.
-    routes: Tabla de hash que tiene como llaves las abreviaturas AITA
-            de cada aeropuerto y como valores arreglos con todos los
-            otros aeropuertos que son posibles destinos de ese.
     airports: Tabla de hash que tiene como llaves las abreviaturas AITA
               de cada aeropuerto y como valores el diccionario con la
               información del aeropuerto.
@@ -87,9 +84,6 @@ def new_analyzer():
                                         directed=False,
                                         size=4000,
                                         comparefunction=comparek)
-        analyzer['routes'] = mp.newMap(numelements=10700,
-                                       maptype='PROBING',
-                                       comparefunction=comparek)
         analyzer['airports'] = mp.newMap(numelements=10700,
                                          maptype='PROBING',
                                          comparefunction=comparek)
@@ -157,21 +151,6 @@ def add_route_digraph(analyzer, route):
             gr.addEdge(analyzer['digraph'], origin, destination, distance)
     except Exception as exp:
         error.reraise(exp, 'model: add_route_digraph: add_edge')
-
-    # Add destination from route to destination list in hash table
-    # try:
-    #     route_exists = mp.contains(analyzer['routes'], origin)
-    #     if route_exists:
-    #         route_entry = mp.get(analyzer['routes'], origin)
-    #         array = me.getValue(route_entry)
-    #         if lt.isPresent(array, destination) == 0:
-    #             lt.addLast(array, destination)
-    #     else:
-    #         array = lt.newList(datastructure='ARRAY_LIST', cmpfunction=compare)
-    #         lt.addLast(array, destination)
-    #         mp.put(analyzer['routes'], origin, array)
-    # except Exception as exp:
-    #     error.reraise(exp, 'model: add_route_digraph: put_hashtable')
 
 
 def add_route_graph(analyzer, route):
@@ -262,7 +241,14 @@ def info_graphs(analyzer):
 
 
 def requirement1(analyzer):
-    pass
+    digraph = analyzer['digraph']
+    N_connected = 0
+    max5 = -float('inf')
+    for vertex in lt.iterator(gr.vertices(digraph)):
+        degree_ = gr.degree(digraph, vertex)
+        if degree_ > max5:
+            N_connected += 1
+    return N_connected
 
 
 def requirement2(analyzer, iata1, iata2):
@@ -287,7 +273,10 @@ def requirement3(analyzer, origin_dict, destiny_dict):
     destino = cuadrado(analyzer, destiny_dict)
     aerOrigen = nearAirport(origen, origin_dict)
     aerDestino = nearAirport(destino, destiny_dict)
-    return aerOrigen, aerDestino
+    dist = 0
+    path = {}
+    stops = {}
+    return aerOrigen, aerDestino, dist, path, stops
 
 
 def nearAirport(list_airports, city_dict):
