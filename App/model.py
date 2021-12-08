@@ -72,7 +72,7 @@ def new_analyzer():
                     'airports': None,
                     'cities': None,
                     'airports_tree': None,
-                    'loaded': {},
+                    'loaded': {'prueba': []},
                     'components': None,
                     'paths': None
                     }
@@ -147,8 +147,9 @@ def add_route_digraph(analyzer, route):
         origin = route['Departure']
         destination = route['Destination']
         distance = float(route['distance_km'])
-        digraph = analyzer['digraph']
-        if gr.getEdge(digraph, origin, destination) is None:
+        if True:
+        # Descomentar para no contemplar differentes aerolíneas
+        # if gr.getEdge(analyzer['digraph'], origin, destination) is None:
             gr.addEdge(analyzer['digraph'], origin, destination, distance)
     except Exception as exp:
         error.reraise(exp, 'model: add_route_digraph: add_edge')
@@ -162,13 +163,17 @@ def add_route_graph(analyzer, route):
     """
     try:
         origin = route['Departure']
-        destination = route['Destination']
+        dest = route['Destination']
         dist = float(route['distance_km'])
-        digraph = analyzer['digraph']
-        if gr.getEdge(digraph, origin, destination) is not None and \
-           gr.getEdge(digraph, destination, origin) is not None:
-            if gr.getEdge(analyzer['graph'], origin, destination) is None:
-                gr.addEdge(analyzer['graph'], origin, destination, dist)
+        dict = analyzer['loaded']['prueba']
+        if gr.getEdge(analyzer['digraph'], origin, dest) is not None and \
+           gr.getEdge(analyzer['digraph'], dest, origin) is not None:
+           if gr.getEdge(analyzer['graph'], dest, origin) is None and \
+              gr.getEdge(analyzer['graph'], origin, dest) is None:
+                gr.addEdge(analyzer['graph'], origin, dest, dist)
+                # Descomentar para 18
+                # gr.addEdge(analyzer['graph'], dest, origin, dist)
+                analyzer['loaded']['prueba'].append((origin, dest))
     except Exception as exp:
         error.reraise(exp, 'model: add_route_graph')
 

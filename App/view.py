@@ -64,8 +64,6 @@ def print_load_data():
     print('=== Airports-Routes Digraph ===')
     print('Nodes: '+str(loaded['N_vertices_digraph'])+' loaded airports.')
     print('Edges: '+str(loaded['N_edges_digraph'])+' loaded routes.')
-    print('Note: There are '+str(loaded['N_edges_digraph'])+' edges despite ' +
-          'there being 39 routes because there are different airlines.')
     print('First & last aiport loaded in the digraph.')
     table1 = PrettyTable(['IATA', 'Name', 'City', 'Country', 'Latitude',
                          'Longitude'])
@@ -88,8 +86,6 @@ def print_load_data():
     print('\n=== Airports-Routes Graph ===')
     print('Nodes: '+str(loaded['N_vertices_graph'])+' loaded airports.')
     print('Edges: '+str(loaded['N_edges_graph'])+' loaded routes.')
-    print('Note: There are '+str(loaded['N_edges_graph'])+' edges despite ' +
-          'there being 16 routes because there are different airlines.')
     print('First & last aiport loaded in the graph.')
     table2 = PrettyTable(['IATA', 'Name', 'City', 'Country', 'Latitude',
                          'Longitude'])
@@ -139,7 +135,7 @@ def print_req1(analyzer):
     print('Most connected airports in network (top 5)')
     print('Number of airports in network: ' +
           str(analyzer['loaded']['N_vertices_digraph']))
-    N_connected,res,tops = controller.requirement1(analyzer)
+    N_connected, res, tops = controller.requirement1(analyzer)
     print('\n=============== Req. No 1 Answer ===============')
     print('Connected airports inside network: '+str(N_connected))
     print('Top 5 most connected airports...')
