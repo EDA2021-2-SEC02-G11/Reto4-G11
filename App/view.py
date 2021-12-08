@@ -268,6 +268,11 @@ def print_req3(analyzer):
     table4.hrules = 1
     print(table4)
 
+def print_req4(analyzer):
+    print('=============== Req. No 4 Inputs ===============')
+    iata = input('Departure IATA code: ')
+    miles = input('Available Travel Miles: ')
+    N_hom_origin, origin_list = controller.requirement4(analyzer,iata,miles)
 
 """
 Menú principal
@@ -299,8 +304,8 @@ def thread_cycle():
                 print_req2(analyzer)
             elif inputs == 3:
                 print_req3(analyzer)
-            # elif inputs == 4:
-            #     print_req4(analyzer)
+            elif inputs == 4:
+                print_req4(analyzer)
             # elif inputs == 5:
             #     print_req5(analyzer)
             # elif inputs == 6:

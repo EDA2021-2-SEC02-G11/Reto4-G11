@@ -35,6 +35,7 @@ from DISClib.DataStructures import mapentry as me
 from DISClib.Algorithms.Graphs import scc
 from DISClib.Utils import error as error
 from DISClib.Algorithms.Graphs import dijsktra as djk
+from DISClib.Algorithms.Graphs import prim as prim
 from math import radians, cos, sin, asin, sqrt
 assert cf
 
@@ -289,6 +290,7 @@ def homonym_cities(analyzer, city):
 
 def requirement3(analyzer, origin_dict, destiny_dict):
     origen = cuadrado(analyzer, origin_dict)
+    print(origen)
     destino = cuadrado(analyzer, destiny_dict)
     aerOrigen = nearAirport(origen, origin_dict)
     aerDestino = nearAirport(destino, destiny_dict)
@@ -371,9 +373,14 @@ def haversine(lon1, lat1, lon2, lat2):
     return km
 
 
-def requirement4(analyzer):
+def requirement4(analyzer,IATA,miles):
     # MST con grafo no dirigido
-    pass
+    maxi=0
+    search=prim.PrimMST(analyzer["digraph"])
+    bus=prim.prim(analyzer["digraph"],search,IATA)
+    #print(search)
+    print(bus)
+    return search, bus
 
 
 def requirement5(analyzer):

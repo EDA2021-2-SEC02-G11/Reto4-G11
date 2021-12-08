@@ -82,8 +82,8 @@ def requirement3(analyzer, origin_dict, destiny_dict):
     return model.requirement3(analyzer, origin_dict, destiny_dict)
 
 
-def requirement4(analyzer):
-    return model.requirement4(analyzer)
+def requirement4(analyzer,IATA,miles):
+    return model.requirement4(analyzer,IATA,miles)
 
 
 def requirement5(analyzer):
