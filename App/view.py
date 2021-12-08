@@ -139,32 +139,51 @@ def print_req1(analyzer):
     print('Most connected airports in network (top 5)')
     print('Number of airports in network: ' +
           str(analyzer['loaded']['N_vertices_digraph']))
-    N_connected = controller.requirement1(analyzer)
+    N_connected,res,tops = controller.requirement1(analyzer)
     print('\n=============== Req. No 1 Answer ===============')
     print('Connected airports inside network: '+str(N_connected))
     print('Top 5 most connected airports...')
-    # table1 = PrettyTable(['Name', 'City', 'Country', 'IATA', 'Connections',
-    #                       'Inbound', 'Outbound'])
-    # table1.add_row([ao['Name'],
-    #                 ao['City'],
-    #                 ao['Country'],
-    #                 ao['IATA'],
-    #                 ao['Connections'],
-    #                 ao['Inbound'],
-    #                 ao['Outbound']])
-    # table1.hrules = 1
-    # print(table1)
+    table1 = PrettyTable(['Name', 'City', 'Country', 'IATA', 'Connections',
+                          'Inbound', 'Outbound'])
+    for i in tops:
+        table1.add_row([res[i][0]['Name'],
+                        res[i][0]['City'],
+                        res[i][0]['Country'],
+                        res[i][0]['IATA'],
+                        res[i][1][0],
+                        res[i][1][1],
+                        res[i][1][2]])
+    table1.hrules = 1
+    print(table1)
 
 
 def print_req2(analyzer):
     print('=============== Req. No 2 Inputs ===============')
     iata1 = input('Airport-1 AITA code: ')
     iata2 = input('Airport-2 AITA code: ')
-    N_scc, bool_scc = controller.requirement2(analyzer, iata1, iata2)
+    N_scc, bool_scc, aer1, aer2 = controller.requirement2(analyzer, iata1, iata2)
     print('\n=============== Req. No 2 Answer ===============')
-    print('Number of SCC in Airport-Rout network '+str(N_scc))
-    print('Do airport-1 & airport-2, with IATA codes '+iata1+' and '+iata2 +
-          ', belong together? '+str(bool_scc))
+    print("+++ Airport1 IATA Code: ",iata1," +++")
+    table1 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
+    table1.add_row([aer1['IATA'],
+                   aer1['Name'],
+                   aer1['City'],
+                   aer1['Country']])
+    table1.hrules = 1
+    print(table1)
+    print("+++ Airport2 IATA Code: ",iata2," +++")
+    table1 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
+    table1.add_row([aer2['IATA'],
+                   aer2['Name'],
+                   aer2['City'],
+                   aer2['Country']])
+    table1.hrules = 1
+    print(table1)
+
+    print('- Number of SCC in Airport-Rout network '+str(N_scc))
+    print('- Do airport-1 & airport-2, with IATA codes '+iata1+' and '+iata2 +
+          ', belong together? ')
+    print("- ANS: ",str(bool_scc))
 
 
 def choose_homonym(hl):

@@ -33,8 +33,8 @@ from DISClib.ADT import orderedmap as om
 from DISClib.DataStructures import mapentry as me
 # from DISClib.Algorithms.Sorting import shellsort as sa
 from DISClib.Algorithms.Graphs import scc
-# from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
+from DISClib.Algorithms.Graphs import dijsktra as djk
 from math import radians, cos, sin, asin, sqrt
 assert cf
 
@@ -245,19 +245,36 @@ def requirement1(analyzer):
     N_connected = 0
     scooby = {}
     for vertex in lt.iterator(gr.vertices(digraph)):
-        degree_ = gr.indegree(digraph, vertex)+gr.outdegree(digraph, vertex)
+        inde=gr.indegree(digraph, vertex)
+        outde=gr.outdegree(digraph, vertex)
+        degree_ = gr.indegree(digraph, vertex) + gr.outdegree(digraph, vertex)
         if degree_ > 0:
             N_connected += 1
-            scooby[vertex] = degree_
+            scooby[vertex] = [degree_,inde,outde]
+    tops=[]
+    for i in range(0,5):
+        top=0
+        aer=""
+        for i in scooby.keys():
+            if scooby[i][0]>top and i not in tops:
+                top=scooby[i][0]
+                aer=i
+        tops.append(aer)
+    res={}
+    for i in tops:
+        res[i]=[me.getValue(mp.get(analyzer['airports'], i)),scooby[i]]
+
     # Incompleta. Terminar.
-    return N_connected
+    return N_connected,res,tops
 
 
 def requirement2(analyzer, iata1, iata2):
     N_scc = scc.connectedComponents(scc.KosarajuSCC(analyzer['digraph']))
     bool_scc = scc.stronglyConnected(scc.KosarajuSCC(analyzer['digraph']),
                                      iata1, iata2)
-    return N_scc, bool_scc
+    aer1=me.getValue(mp.get(analyzer['airports'], iata1))
+    aer2=me.getValue(mp.get(analyzer['airports'], iata2))
+    return N_scc, bool_scc,aer1,aer2
 
 
 def homonym_cities(analyzer, city):
@@ -275,9 +292,20 @@ def requirement3(analyzer, origin_dict, destiny_dict):
     destino = cuadrado(analyzer, destiny_dict)
     aerOrigen = nearAirport(origen, origin_dict)
     aerDestino = nearAirport(destino, destiny_dict)
-    dist = 0
-    path = {}
-    stops = {}
+    print(aerOrigen," hola")
+    print(aerDestino)
+    search = djk.Dijkstra(analyzer['graph'], "LED")
+    print(djk.hasPathTo(search,aerDestino["IATA"]))
+    if djk.hasPathTo(search,aerDestino["IATA"])==True:
+        path=djk.pathTo(search,aerDestino["IATA"])
+        print(path)
+        print(str(djk.distTo(search,aerDestino["IATA"])))
+        dist = str(djk.distTo(search,aerDestino["IATA"]))
+        stops = {}
+    else:
+        path={}
+        dist=0
+        stops={}
     return aerOrigen, aerDestino, dist, path, stops
 
 
@@ -344,16 +372,20 @@ def haversine(lon1, lat1, lon2, lat2):
 
 
 def requirement4(analyzer):
+    # MST con grafo no dirigido
     pass
 
 
 def requirement5(analyzer):
+    #Encontrar los adjacentes o por los que es adjacente y luego pasar a ciudades
     pass
 
 
 def requirement6(analyzer):
     pass
 
+def requirement7(analyzer):
+    pass
 
 # Comparison functions
 
