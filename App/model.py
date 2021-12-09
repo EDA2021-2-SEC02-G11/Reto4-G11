@@ -412,11 +412,15 @@ def haversine(lon1, lat1, lon2, lat2):
 
 def requirement4(analyzer,IATA,miles):
     # MST con grafo no dirigido
-    maxi=0
-    search=prim.PrimMST(analyzer["digraph"])
-    bus=prim.prim(analyzer["digraph"],search,IATA)
+    graph=analyzer["graph"]
+    km=float(miles)/0.62137
+    search=prim.PrimMST(graph)
+    bus=prim.prim(graph,search,IATA)
     #print(search)
-    print(bus)
+    #print(bus)
+    edges=prim.edgesMST(graph, bus) 
+    print(edges)
+    print(me.getValue(mp.get(edges, "mst")))
     return search, bus
 
 
