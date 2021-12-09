@@ -26,6 +26,7 @@ import sys
 import controller
 from prettytable import PrettyTable
 from DISClib.ADT import list as lt
+from DISClib.ADT import stack
 assert cf
 
 
@@ -135,8 +136,9 @@ def print_req1(analyzer):
     print('Most connected airports in network (top 5)')
     print('Number of airports in network: ' +
           str(analyzer['loaded']['N_vertices_digraph']))
-    N_connected, res, tops = controller.requirement1(analyzer)
+    N_connected, res, tops, N_connected2, res2, tops2 = controller.requirement1(analyzer)
     print('\n=============== Req. No 1 Answer ===============')
+    print('\n=============== Req. No 1 Digraph ===============')
     print('Connected airports inside network: '+str(N_connected))
     print('Top 5 most connected airports...')
     table1 = PrettyTable(['Name', 'City', 'Country', 'IATA', 'Connections',
@@ -151,6 +153,18 @@ def print_req1(analyzer):
                         res[i][1][2]])
     table1.hrules = 1
     print(table1)
+    print('\n=============== Req. No 1 Graph ===============')
+    print('Connected airports inside network: '+str(N_connected2))
+    print('Top 5 most connected airports...')
+    table2 = PrettyTable(['Name', 'City', 'Country', 'IATA', 'Connections'])
+    for i in tops2 :
+        table2.add_row([res2[i][0]['Name'],
+                        res2[i][0]['City'],
+                        res2[i][0]['Country'],
+                        res2[i][0]['IATA'],
+                        res2[i][1]])
+    table2.hrules = 1
+    print(table2)
 
 
 def print_req2(analyzer):
@@ -226,7 +240,7 @@ def print_req3(analyzer):
     else:
         print('\nNo cities homonym to '+str(destiny))
         destiny_dict = destiny_list
-    ao, ad, dist, path, stops = controller.requirement3(analyzer, origin_dict,
+    ao, ad, dist, path, stop = controller.requirement3(analyzer, origin_dict,
                                                         destiny_dict)
     print('\n=============== Req. No 3 Answer ===============')
     print('+++ The departure airport in '+origin+' is +++')
@@ -249,18 +263,21 @@ def print_req3(analyzer):
     print(' - Total distance: '+str(dist)+' (km)')
     print(' - Trip path: ')
     table3 = PrettyTable(['Airline', 'Departure', 'Destination', 'Distance'])
-    table3.add_row([path['Airline'],
-                    path['Departure'],
-                    path['Destination'],
-                    path['distance_km']])
+    while not stack.isEmpty(path):
+        edge=stack.pop(path)
+        table3.add_row(["F",
+                        edge['vertexA'],
+                        edge['vertexB'],
+                        round(edge['weight'],2)])
     table3.hrules = 1
-    print(table3)
+    print(table3)   
     print(' - Trip stops: ')
     table4 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
-    table4.add_row([stops['IATA'],
-                    stops['Name'],
-                    stops['City'],
-                    stops['Country']])
+    for i in stop:
+        table4.add_row([i['IATA'],
+                        i['Name'],
+                        i['City'],
+                        i['Country']])
     table4.hrules = 1
     print(table4)
 
@@ -269,6 +286,32 @@ def print_req4(analyzer):
     iata = input('Departure IATA code: ')
     miles = input('Available Travel Miles: ')
     N_hom_origin, origin_list = controller.requirement4(analyzer,iata,miles)
+
+def print_req5(analyzer):
+    print('=============== Req. No 5 Inputs ===============')
+    aer = input('Closing the airport with IATA code: ')
+    g_v, di_v, di_e, g_e, adj_gr, di_vf, g_ef,g_vf,di_ef= controller.requirement5(analyzer,aer)
+    print("\n--- Airports-Routes Digraph ---")
+    print("Original number of Airports: ",di_v," and Routes: ",di_e)
+    print("\n--- Airports-Routes Graph ---")
+    print("Original number of Airports: ",g_v," and Routes: ",g_e)
+
+    print("\n\n+++ Removing Airport with IATA: ",aer," +++")
+    print("\n--- Airports-Routes Digraph ---")
+    print("Resulting number of Airports: ",di_vf," and Routes: ",di_ef)
+    print("\n--- Airports-Routes Graph ---")
+    print("Resulting number of Airports: ",g_vf," and Routes: ",g_ef)
+    print('\n=============== Req. No 5 Answer ===============')
+    print("There are ",str(len(adj_gr))," Airports affected by the removal of ",aer)
+    table1 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
+    for i in adj_gr:
+        table1.add_row([i['IATA'],
+                        i['Name'],
+                        i['City'],
+                        i['Country']])
+    table1.hrules = 1
+    print(table1)
+
 
 """
 Menú principal
@@ -302,8 +345,8 @@ def thread_cycle():
                 print_req3(analyzer)
             elif inputs == 4:
                 print_req4(analyzer)
-            # elif inputs == 5:
-            #     print_req5(analyzer)
+            elif inputs == 5:
+                print_req5(analyzer)
             # elif inputs == 6:
             #     print_req6(analyzer)
         elif inputs > 7:

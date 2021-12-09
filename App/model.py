@@ -36,6 +36,7 @@ from DISClib.Algorithms.Graphs import scc
 from DISClib.Utils import error as error
 from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Algorithms.Graphs import prim as prim
+from DISClib.ADT import stack
 from math import radians, cos, sin, asin, sqrt
 assert cf
 
@@ -172,7 +173,7 @@ def add_route_graph(analyzer, route):
               gr.getEdge(analyzer['graph'], origin, dest) is None:
                 gr.addEdge(analyzer['graph'], origin, dest, dist)
                 # Descomentar para 18
-                # gr.addEdge(analyzer['graph'], dest, origin, dist)
+                #gr.addEdge(analyzer['graph'], dest, origin, dist)
                 analyzer['loaded']['prueba'].append((origin, dest))
     except Exception as exp:
         error.reraise(exp, 'model: add_route_graph')
@@ -253,10 +254,10 @@ def requirement1(analyzer):
     for vertex in lt.iterator(gr.vertices(digraph)):
         inde=gr.indegree(digraph, vertex)
         outde=gr.outdegree(digraph, vertex)
-        degree_ = gr.indegree(digraph, vertex) + gr.outdegree(digraph, vertex)
+        degree_ = inde + outde
         if degree_ > 0:
             N_connected += 1
-            scooby[vertex] = [degree_,inde,outde]
+            scooby[vertex] = [degree_, inde, outde]
     tops=[]
     for i in range(0,5):
         top=0
@@ -271,7 +272,29 @@ def requirement1(analyzer):
         res[i]=[me.getValue(mp.get(analyzer['airports'], i)),scooby[i]]
 
     # Incompleta. Terminar.
-    return N_connected,res,tops
+
+    graph = analyzer['graph']
+    N_connected2 = 0
+    scooby2 = {}
+    for vertex in lt.iterator(gr.vertices(graph)):
+        degree_ = gr.degree(graph, vertex)
+        if degree_ > 0:
+            N_connected2 += 1
+            scooby2[vertex] = degree_
+    tops2=[]
+    for i in range(0,5):
+        top=0
+        aer=""
+        for i in scooby2.keys():
+            if scooby2[i]>top and i not in tops2:
+                top=scooby2[i]
+                aer=i
+        tops2.append(aer)
+    res2={}
+    for i in tops2:
+        res2[i]=[me.getValue(mp.get(analyzer['airports'], i)),scooby2[i]]
+
+    return N_connected,res,tops, N_connected2,res2,tops2
 
 
 def requirement2(analyzer, iata1, iata2):
@@ -299,21 +322,30 @@ def requirement3(analyzer, origin_dict, destiny_dict):
     destino = cuadrado(analyzer, destiny_dict)
     aerOrigen = nearAirport(origen, origin_dict)
     aerDestino = nearAirport(destino, destiny_dict)
-    print(aerOrigen," hola")
-    print(aerDestino)
-    search = djk.Dijkstra(analyzer['graph'], "LED")
+    search = djk.Dijkstra(analyzer['digraph'], aerOrigen["IATA"])
     print(djk.hasPathTo(search,aerDestino["IATA"]))
     if djk.hasPathTo(search,aerDestino["IATA"])==True:
         path=djk.pathTo(search,aerDestino["IATA"])
         print(path)
         print(str(djk.distTo(search,aerDestino["IATA"])))
         dist = str(djk.distTo(search,aerDestino["IATA"]))
-        stops = {}
+        stops = []
+        path2=path.copy()
+        stop=[]
+        while not stack.isEmpty(path2):
+            edge=stack.pop(path2)
+            if edge["vertexA"] not in stops:
+                stops.append(edge["vertexA"])
+            if edge["vertexB"] not in stops:
+                stops.append(edge["vertexB"])
+        for i in stops:
+            stop.append(me.getValue(mp.get(analyzer['airports'], i)))
+
     else:
         path={}
         dist=0
-        stops={}
-    return aerOrigen, aerDestino, dist, path, stops
+        stop=[]
+    return aerOrigen, aerDestino, dist, path, stop
 
 
 def nearAirport(list_airports, city_dict):
@@ -388,9 +420,30 @@ def requirement4(analyzer,IATA,miles):
     return search, bus
 
 
-def requirement5(analyzer):
+def requirement5(analyzer, aer):
     #Encontrar los adjacentes o por los que es adjacente y luego pasar a ciudades
-    pass
+    digraph=analyzer["digraph"]
+    graph=analyzer["graph"]
+    di_v=gr.numVertices(digraph)
+    g_v=gr.numVertices(graph)
+    di_e=gr.numEdges(digraph)
+    g_e=gr.numEdges(graph)
+    adj=gr.adjacents(graph, aer)
+    adj_g=[]
+    while not stack.isEmpty(adj):
+            edge=stack.pop(adj)
+            adj_g.append(edge)
+    adj_gr=[]
+    for i in adj_g:
+            adj_gr.append(me.getValue(mp.get(analyzer['airports'], i)))
+    di_vf=di_v-1
+    g_vf=g_v-1
+    g_ef=g_e-len(adj_gr)
+    inde=gr.indegree(digraph, aer)
+    outde=gr.outdegree(digraph, aer)
+    degree_ = inde + outde
+    di_ef=di_e -degree_
+    return g_v, di_v, di_e, g_e, adj_gr, di_vf, g_ef,g_vf,di_ef
 
 
 def requirement6(analyzer):

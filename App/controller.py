@@ -86,8 +86,8 @@ def requirement4(analyzer,IATA,miles):
     return model.requirement4(analyzer,IATA,miles)
 
 
-def requirement5(analyzer):
-    return model.requirement5(analyzer)
+def requirement5(analyzer, aer):
+    return model.requirement5(analyzer, aer)
 
 
 def requirement6(analyzer):
