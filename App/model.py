@@ -174,7 +174,7 @@ def add_route_graph(analyzer, route):
                 # Descomentar para 18
                 #gr.addEdge(analyzer['graph'], dest, origin, dist)
     except Exception as exp:
-        error.reraise(exp, 'model: add_route_graph')
+        error.reraise(exp, 'model: add_route_graph') 
 
 
 def add_city(analyzer, city):
