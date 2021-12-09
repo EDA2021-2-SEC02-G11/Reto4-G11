@@ -73,7 +73,7 @@ def new_analyzer():
                     'airports': None,
                     'cities': None,
                     'airports_tree': None,
-                    'loaded': {'prueba': []},
+                    'loaded': {},
                     'components': None,
                     'paths': None
                     }
@@ -166,7 +166,6 @@ def add_route_graph(analyzer, route):
         origin = route['Departure']
         dest = route['Destination']
         dist = float(route['distance_km'])
-        dict = analyzer['loaded']['prueba']
         if gr.getEdge(analyzer['digraph'], origin, dest) is not None and \
            gr.getEdge(analyzer['digraph'], dest, origin) is not None:
            if gr.getEdge(analyzer['graph'], dest, origin) is None and \
@@ -174,7 +173,6 @@ def add_route_graph(analyzer, route):
                 gr.addEdge(analyzer['graph'], origin, dest, dist)
                 # Descomentar para 18
                 #gr.addEdge(analyzer['graph'], dest, origin, dist)
-                analyzer['loaded']['prueba'].append((origin, dest))
     except Exception as exp:
         error.reraise(exp, 'model: add_route_graph')
 
@@ -414,14 +412,12 @@ def requirement4(analyzer,IATA,miles):
     # MST con grafo no dirigido
     graph=analyzer["graph"]
     km=float(miles)/0.62137
-    search=prim.PrimMST(graph)
-    bus=prim.prim(graph,search,IATA)
+    search = prim.PrimMST(graph)
+    bus = prim.prim(graph,search,str(IATA))
     #print(search)
     #print(bus)
-    edges=prim.edgesMST(graph, bus)
-    print(mp.keySet(edges))
-
-    print(me.getValue(mp.get(edges, "MST")))
+    edges = prim.edgesMST(graph, bus)
+    mst_ = edges['mst']
     return search, bus
 
 
