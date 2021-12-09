@@ -418,6 +418,10 @@ def requirement4(analyzer,IATA,miles):
     #print(bus)
     edges = prim.edgesMST(graph, bus)
     mst_ = edges['mst']
+    print(edges.keys())
+    #print(edges["edgeTo"])
+    print(mst_)
+    print(len(mst_.keys()))
     return search, bus
 
 

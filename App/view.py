@@ -307,7 +307,11 @@ def print_req5(analyzer):
     print('\n=============== Req. No 5 Answer ===============')
     print("There are ",str(len(adj_gr))," Airports affected by the removal of ",aer)
     table1 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
+    j=0
     for i in adj_gr:
+        j+=1
+        if j>6:
+            break
         table1.add_row([i['IATA'],
                         i['Name'],
                         i['City'],
