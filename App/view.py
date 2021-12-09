@@ -260,26 +260,29 @@ def print_req3(analyzer):
     table2.hrules = 1
     print(table2)
     print("\n+++ Dijkstra's trip details +++")
-    print(' - Total distance: '+str(dist)+' (km)')
-    print(' - Trip path: ')
-    table3 = PrettyTable(['Airline', 'Departure', 'Destination', 'Distance'])
-    while not stack.isEmpty(path):
-        edge=stack.pop(path)
-        table3.add_row(["F",
-                        edge['vertexA'],
-                        edge['vertexB'],
-                        round(edge['weight'],2)])
-    table3.hrules = 1
-    print(table3)   
-    print(' - Trip stops: ')
-    table4 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
-    for i in stop:
-        table4.add_row([i['IATA'],
-                        i['Name'],
-                        i['City'],
-                        i['Country']])
-    table4.hrules = 1
-    print(table4)
+    if dist!=0.0:
+        print(' - Total distance: '+str(dist)+' (km)')
+        print(' - Trip path: ')
+        table3 = PrettyTable(['Airline', 'Departure', 'Destination', 'Distance'])
+        while not stack.isEmpty(path):
+            edge=stack.pop(path)
+            table3.add_row(["F",
+                            edge['vertexA'],
+                            edge['vertexB'],
+                            round(edge['weight'],2)])
+        table3.hrules = 1
+        print(table3)   
+        print(' - Trip stops: ')
+        table4 = PrettyTable(['IATA', 'Name', 'City', 'Country'])
+        for i in stop:
+            table4.add_row([i['IATA'],
+                            i['Name'],
+                            i['City'],
+                            i['Country']])
+        table4.hrules = 1
+        print(table4)
+    else:
+        print("No hay un camino entre los dos aeropuertos")
 
 def print_req4(analyzer):
     print('=============== Req. No 4 Inputs ===============')
